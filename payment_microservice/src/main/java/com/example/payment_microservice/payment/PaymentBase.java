@@ -10,6 +10,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 @Table(name = "payment_base")
 public class PaymentBase {
 

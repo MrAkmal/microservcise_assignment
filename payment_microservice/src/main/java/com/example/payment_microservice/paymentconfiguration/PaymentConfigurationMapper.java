@@ -23,6 +23,8 @@ public class PaymentConfigurationMapper {
             System.out.println("base = " + base);
             list.add(toBaseDTO(base));
         });
+
+        System.out.println("list = " + list);
         return list;
 
     }
