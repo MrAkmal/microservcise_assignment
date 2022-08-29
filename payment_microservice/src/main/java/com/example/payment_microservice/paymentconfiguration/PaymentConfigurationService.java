@@ -3,6 +3,7 @@ package com.example.payment_microservice.paymentconfiguration;
 import com.example.payment_microservice.dto.ProcurementMethodDTO;
 import com.example.payment_microservice.dto.ProcurementNatureDTO;
 import com.example.payment_microservice.payment.PaymentBase;
+import com.example.payment_microservice.payment.PaymentBaseDTO;
 import com.example.payment_microservice.payment.PaymentBaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -58,19 +60,14 @@ public class PaymentConfigurationService {
 
             System.out.println("above");
 
-            Mono<List<PaymentBase>> paymentBaseFlux = paymentBaseRepository.findPaymentBasesByPaymentConfigurationId(paymentConfiguration.getId());
+            Flux<PaymentBase> paymentBaseFlux = paymentBaseRepository.findPaymentBasesByPaymentConfigurationId(paymentConfiguration.getId());
+            List<PaymentBaseDTO> paymentBaseDTOList = mapper.toBaseDTO(paymentBaseFlux);
 
             System.out.println("below");
-            paymentBaseFlux.subscribe(paymentBases -> {
-                paymentBases.forEach(paymentBase -> {
-                    System.out.println(paymentBase.getPaymentConfigurationId());
-                });
-            });
-            System.out.println("below2");
 
             Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                     .get()
-                    .uri(procurementMethodURI + "{id}", paymentConfiguration.getProcurementMethodId())
+                    .uri(procurementMethodURI + "/{id}", paymentConfiguration.getProcurementMethodId())
                     .retrieve()
                     .bodyToMono(ProcurementMethodDTO.class);
 
@@ -80,31 +77,27 @@ public class PaymentConfigurationService {
                     .retrieve()
                     .bodyToMono(ProcurementNatureDTO.class);
 
-            Mono<Tuple2<ProcurementMethodDTO, ProcurementNatureDTO>> zip = Mono.zip(procurementMethodMono, procurementNatureMono);
+            Mono<Tuple2<ProcurementMethodDTO, ProcurementNatureDTO>> zip = Mono.zip(procurementMethodMono,
+                    procurementNatureMono);
 
 
-            return paymentBaseFlux.flatMap(paymentBase -> {
+            return zip.map(objects -> {
 
-                return zip.map(objects -> {
+                System.out.println("paymentConfiguration.getId() = " + paymentConfiguration.getId());
+                System.out.println("objects.getT1() = " + objects.getT1());
+                System.out.println("objects.getT1.name() = " + objects.getT1().getName());
+                System.out.println("objects.getT2() = " + objects.getT2().getName());
 
+                return PaymentConfigurationDTO.builder()
+                        .id(paymentConfiguration.getId())
+                        .payments(paymentBaseDTOList)
+                        .procurementMethodName(objects.getT1().getName())
+                        .procurementNatureName(objects.getT2().getName())
+                        .build();
 
-                    System.out.println("paymentConfiguration.getId() = " + paymentConfiguration.getId());
-                    paymentBase.stream().forEach(System.out::println);
-                    System.out.println("objects.getT1() = " + objects.getT1());
-                    System.out.println("objects.getT1.name() = " + objects.getT1().getName());
-                    System.out.println("objects.getT2() = " + objects.getT2().getName());
-
-                    return PaymentConfigurationDTO.builder()
-                            .id(paymentConfiguration.getId())
-                            .payments(mapper.toBaseDTO(paymentBase))
-                            .procurementMethodName(objects.getT1().getName())
-                            .procurementNatureName(objects.getT2().getName())
-                            .build();
-
-                });
             });
-
         });
+
 
         return dtoMono;
     }
