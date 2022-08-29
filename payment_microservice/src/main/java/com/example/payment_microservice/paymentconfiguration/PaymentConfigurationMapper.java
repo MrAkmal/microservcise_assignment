@@ -19,12 +19,21 @@ public class PaymentConfigurationMapper {
     public List<PaymentBaseDTO> toBaseDTO(Flux<PaymentBase> paymentBase) {
 
         List<PaymentBaseDTO> list = new ArrayList<>();
-        paymentBase.subscribe(base -> {
-            System.out.println("base = " + base);
-            list.add(toBaseDTO(base));
-        });
+//        paymentBase.subscribe(base -> {
+//            System.out.println("base = " + base);
+//            list.add(toBaseDTO(base));
+//        });
 
-        System.out.println("list = " + list);
+        paymentBase
+                .collectList()
+
+                .doOnNext(paymentBases -> {
+                    for (PaymentBase base : paymentBases) {
+                        list.add(toBaseDTO(base));
+                    }
+                })
+                .subscribe();
+
         return list;
 
     }
@@ -59,10 +68,6 @@ public class PaymentConfigurationMapper {
 //                .payments()
 //                .build();
 //    }
-
-
-
-
 
 
     public PaymentConfiguration fromCreateDTO(PaymentConfigurationCreateDTO createDTO) {
