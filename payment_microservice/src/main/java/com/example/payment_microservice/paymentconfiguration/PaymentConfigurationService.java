@@ -64,6 +64,8 @@ public class PaymentConfigurationService {
             List<PaymentBaseDTO> paymentBaseDTOList = mapper.toBaseDTO(paymentBaseFlux);
 
             System.out.println("below");
+            paymentBaseFlux.subscribe(paymentBase -> System.out.println("data"));
+            System.out.println("below2");
 
             Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                     .get()
@@ -83,7 +85,9 @@ public class PaymentConfigurationService {
 
             return zip.map(objects -> {
 
+
                 System.out.println("paymentConfiguration.getId() = " + paymentConfiguration.getId());
+//                    paymentBase.stream().forEach(System.out::println);
                 System.out.println("objects.getT1() = " + objects.getT1());
                 System.out.println("objects.getT1.name() = " + objects.getT1().getName());
                 System.out.println("objects.getT2() = " + objects.getT2().getName());
