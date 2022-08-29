@@ -1,25 +1,24 @@
 package com.example.payment_microservice.payment;
 
-
 import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Builder
-public class PaymentBaseDTO {
+public class PaymentBaseUpdateDTO {
 
 
     private int id;
 
     private String type;
 
+
     private boolean active;
 
-    private int paymentConfigurationId;
 
+    private int paymentConfigurationId;
 
 
 }

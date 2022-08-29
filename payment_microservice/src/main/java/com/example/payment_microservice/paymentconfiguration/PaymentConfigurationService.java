@@ -49,23 +49,11 @@ public class PaymentConfigurationService {
 
         Mono<PaymentConfiguration> paymentConfigurationMono = repository.findById(id);
 
-        paymentConfigurationMono.subscribe(paymentConfiguration -> {
-            System.out.println(paymentConfiguration.getId());
-            System.out.println(paymentConfiguration.getProcurementNatureId());
-            System.out.println(paymentConfiguration.getProcurementMethodId());
-        });
-
         Mono<PaymentConfigurationDTO> dtoMono = paymentConfigurationMono.flatMap(paymentConfiguration -> {
 
 
-            System.out.println("above");
-
             Flux<PaymentBase> paymentBaseFlux = paymentBaseRepository.findPaymentBasesByPaymentConfigurationId(paymentConfiguration.getId());
-            List<PaymentBaseDTO> paymentBaseDTOList = mapper.toBaseDTO(paymentBaseFlux);
 
-            System.out.println("below");
-            paymentBaseFlux.subscribe(paymentBase -> System.out.println("data"));
-            System.out.println("below2");
 
             Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                     .get()
@@ -79,29 +67,30 @@ public class PaymentConfigurationService {
                     .retrieve()
                     .bodyToMono(ProcurementNatureDTO.class);
 
-            Mono<Tuple2<ProcurementMethodDTO, ProcurementNatureDTO>> zip = Mono.zip(procurementMethodMono,
-                    procurementNatureMono);
+            Mono<Tuple2<ProcurementMethodDTO, ProcurementNatureDTO>> zip = Mono.zip(procurementMethodMono, procurementNatureMono);
+
+            return paymentBaseFlux.collectList().flatMap(paymentBase -> {
 
 
-            return zip.map(objects -> {
+                return zip.map(objects -> {
 
+                    return PaymentConfigurationDTO.builder()
+                            .id(paymentConfiguration.getId())
+                            .payments(paymentBase.stream().map(paymentBase1 -> {
+                                return PaymentBaseDTO.builder()
+                                        .id(paymentBase1.getId())
+                                        .type(paymentBase1.getType())
+                                        .active(paymentBase1.isActive())
+                                        .build();
+                            }).toList())
+                            .procurementMethodName(objects.getT1().getName())
+                            .procurementNatureName(objects.getT2().getName())
+                            .build();
 
-                System.out.println("paymentConfiguration.getId() = " + paymentConfiguration.getId());
-//                    paymentBase.stream().forEach(System.out::println);
-                System.out.println("objects.getT1() = " + objects.getT1());
-                System.out.println("objects.getT1.name() = " + objects.getT1().getName());
-                System.out.println("objects.getT2() = " + objects.getT2().getName());
-
-                return PaymentConfigurationDTO.builder()
-                        .id(paymentConfiguration.getId())
-                        .payments(paymentBaseDTOList)
-                        .procurementMethodName(objects.getT1().getName())
-                        .procurementNatureName(objects.getT2().getName())
-                        .build();
-
+                });
             });
-        });
 
+        });
 
         return dtoMono;
     }
@@ -110,8 +99,6 @@ public class PaymentConfigurationService {
     @Transactional
     public Mono<PaymentConfigurationDTO> save(PaymentConfigurationCreateDTO dto) {
 
-        System.out.println("dto.getProcurementNatureId() = " + dto.getProcurementNatureId());
-        System.out.println("dto.getProcurementMethodId() = " + dto.getProcurementMethodId());
         Mono<PaymentConfiguration> paymentConfigurationMono = repository.save(mapper.fromCreateDTO(dto));
 
         return paymentConfigurationMono.flatMap(paymentConfiguration -> get(paymentConfiguration.getId()));

@@ -1,12 +1,12 @@
 package com.example.payment_microservice.payment;
 
 
+import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 public interface PaymentBaseRepository extends ReactiveCrudRepository<PaymentBase, Integer> {
 
@@ -17,7 +17,10 @@ public interface PaymentBaseRepository extends ReactiveCrudRepository<PaymentBas
     @Query("select * from payment_base where payment_configuration_id =:paymentConfigurationId")
     Flux<PaymentBase> findPaymentBasesByPaymentConfigurationId(Integer paymentConfigurationId);
 
-//    Mono<List<PaymentBase>> findAllByPaymentConfigurationId(int paymentConfigurationId);
 
+    @Transactional
+    @Modifying
+    @Query("insert into payment_base(type,is_active) values (:#{#dto.type},:#{#dto.active})")
+    Mono<PaymentBase> saveCustom(PaymentBase dto);
 
 }
