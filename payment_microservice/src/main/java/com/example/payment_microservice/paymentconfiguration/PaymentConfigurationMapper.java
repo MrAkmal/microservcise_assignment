@@ -4,7 +4,9 @@ package com.example.payment_microservice.paymentconfiguration;
 import com.example.payment_microservice.payment.PaymentBase;
 import com.example.payment_microservice.payment.PaymentBaseDTO;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -50,10 +52,6 @@ public class PaymentConfigurationMapper {
 //    }
 
 
-
-
-
-
     public PaymentConfiguration fromCreateDTO(PaymentConfigurationCreateDTO createDTO) {
 
         return PaymentConfiguration.builder()
@@ -73,4 +71,14 @@ public class PaymentConfigurationMapper {
     }
 
 
+    public List<PaymentBaseDTO> toDTO2(Flux<PaymentBase> paymentBaseFlux) {
+
+        List<PaymentBaseDTO> list = new ArrayList<>();
+
+        paymentBaseFlux.subscribe(paymentBase -> {
+            list.add(toBaseDTO(paymentBase));
+        });
+
+        return list;
+    }
 }

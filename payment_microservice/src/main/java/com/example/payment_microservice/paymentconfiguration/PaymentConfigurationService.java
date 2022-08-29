@@ -3,6 +3,7 @@ package com.example.payment_microservice.paymentconfiguration;
 import com.example.payment_microservice.dto.ProcurementMethodDTO;
 import com.example.payment_microservice.dto.ProcurementNatureDTO;
 import com.example.payment_microservice.payment.PaymentBase;
+import com.example.payment_microservice.payment.PaymentBaseDTO;
 import com.example.payment_microservice.payment.PaymentBaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,30 +48,19 @@ public class PaymentConfigurationService {
 
         Mono<PaymentConfiguration> paymentConfigurationMono = repository.findById(id);
 
-        paymentConfigurationMono.subscribe(paymentConfiguration -> {
-            System.out.println(paymentConfiguration.getId());
-            System.out.println(paymentConfiguration.getProcurementNatureId());
-            System.out.println(paymentConfiguration.getProcurementMethodId());
-        });
 
         Mono<PaymentConfigurationDTO> dtoMono = paymentConfigurationMono.flatMap(paymentConfiguration -> {
 
+            Flux<PaymentBase> paymentBaseFlux = paymentBaseRepository.findPaymentBasesByPaymentConfigurationId(paymentConfiguration.getId());
 
-            System.out.println("above");
+            Mono<List<PaymentBase>> listMono = paymentBaseFlux.collectList();
 
-            Mono<List<PaymentBase>> paymentBaseFlux = paymentBaseRepository.findPaymentBasesByPaymentConfigurationId(paymentConfiguration.getId());
+            List<PaymentBaseDTO> paymentBaseDTOList = mapper.toDTO2(paymentBaseFlux);
 
-            System.out.println("below");
-            paymentBaseFlux.subscribe(paymentBases -> {
-                paymentBases.forEach(paymentBase -> {
-                    System.out.println(paymentBase.getPaymentConfigurationId());
-                });
-            });
-            System.out.println("below2");
 
             Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                     .get()
-                    .uri(procurementMethodURI + "{id}", paymentConfiguration.getProcurementMethodId())
+                    .uri(procurementMethodURI + "/{id}", paymentConfiguration.getProcurementMethodId())
                     .retrieve()
                     .bodyToMono(ProcurementMethodDTO.class);
 
@@ -80,28 +70,22 @@ public class PaymentConfigurationService {
                     .retrieve()
                     .bodyToMono(ProcurementNatureDTO.class);
 
+
             Mono<Tuple2<ProcurementMethodDTO, ProcurementNatureDTO>> zip = Mono.zip(procurementMethodMono, procurementNatureMono);
 
-
-            return paymentBaseFlux.flatMap(paymentBase -> {
-
-                return zip.map(objects -> {
+            System.out.println("1");
 
 
-                    System.out.println("paymentConfiguration.getId() = " + paymentConfiguration.getId());
-                    paymentBase.stream().forEach(System.out::println);
-                    System.out.println("objects.getT1() = " + objects.getT1());
-                    System.out.println("objects.getT1.name() = " + objects.getT1().getName());
-                    System.out.println("objects.getT2() = " + objects.getT2().getName());
+            return zip.map(objects -> {
+                System.out.println("2");
 
-                    return PaymentConfigurationDTO.builder()
-                            .id(paymentConfiguration.getId())
-                            .payments(mapper.toBaseDTO(paymentBase))
-                            .procurementMethodName(objects.getT1().getName())
-                            .procurementNatureName(objects.getT2().getName())
-                            .build();
+                return PaymentConfigurationDTO.builder()
+                        .id(paymentConfiguration.getId())
+                        .payments(paymentBaseDTOList)
+                        .procurementMethodName(objects.getT1().getName())
+                        .procurementNatureName(objects.getT2().getName())
+                        .build();
 
-                });
             });
 
         });
