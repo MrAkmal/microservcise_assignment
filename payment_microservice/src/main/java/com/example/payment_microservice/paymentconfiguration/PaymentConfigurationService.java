@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,19 +49,25 @@ public class PaymentConfigurationService {
 
         Mono<PaymentConfiguration> paymentConfigurationMono = repository.findById(id);
 
+        paymentConfigurationMono.subscribe(paymentConfiguration -> {
+            System.out.println(paymentConfiguration.getId());
+            System.out.println(paymentConfiguration.getProcurementNatureId());
+            System.out.println(paymentConfiguration.getProcurementMethodId());
+        });
 
         Mono<PaymentConfigurationDTO> dtoMono = paymentConfigurationMono.flatMap(paymentConfiguration -> {
 
+
+            System.out.println("above");
+
             Flux<PaymentBase> paymentBaseFlux = paymentBaseRepository.findPaymentBasesByPaymentConfigurationId(paymentConfiguration.getId());
+            List<PaymentBaseDTO> paymentBaseDTOList = mapper.toBaseDTO(paymentBaseFlux);
 
-            Mono<List<PaymentBase>> listMono = paymentBaseFlux.collectList();
-
-            List<PaymentBaseDTO> paymentBaseDTOList = mapper.toDTO2(paymentBaseFlux);
-
+            System.out.println("below");
 
             Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                     .get()
-                    .uri(procurementMethodURI + "/{id}", paymentConfiguration.getProcurementMethodId())
+                    .uri(procurementMethodURI + "{id}", paymentConfiguration.getProcurementMethodId())
                     .retrieve()
                     .bodyToMono(ProcurementMethodDTO.class);
 
@@ -70,22 +77,28 @@ public class PaymentConfigurationService {
                     .retrieve()
                     .bodyToMono(ProcurementNatureDTO.class);
 
-
             Mono<Tuple2<ProcurementMethodDTO, ProcurementNatureDTO>> zip = Mono.zip(procurementMethodMono, procurementNatureMono);
 
-            System.out.println("1");
+
+            return paymentBaseFlux.flatMap(paymentBase -> {
+
+                return zip.map(objects -> {
 
 
-            return zip.map(objects -> {
-                System.out.println("2");
+                    System.out.println("paymentConfiguration.getId() = " + paymentConfiguration.getId());
+                    paymentBase.stream().forEach(System.out::println);
+                    System.out.println("objects.getT1() = " + objects.getT1());
+                    System.out.println("objects.getT1.name() = " + objects.getT1().getName());
+                    System.out.println("objects.getT2() = " + objects.getT2().getName());
 
-                return PaymentConfigurationDTO.builder()
-                        .id(paymentConfiguration.getId())
-                        .payments(paymentBaseDTOList)
-                        .procurementMethodName(objects.getT1().getName())
-                        .procurementNatureName(objects.getT2().getName())
-                        .build();
+                    return PaymentConfigurationDTO.builder()
+                            .id(paymentConfiguration.getId())
+                            .payments(mapper.toBaseDTO(paymentBase))
+                            .procurementMethodName(objects.getT1().getName())
+                            .procurementNatureName(objects.getT2().getName())
+                            .build();
 
+                });
             });
 
         });
