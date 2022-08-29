@@ -18,6 +18,13 @@ public class PaymentBaseMapper {
     }
 
 
+    public List<PaymentBase> fromCreateDTO(List<PaymentBaseCreateDTO> dtos) {
+
+        return dtos.stream().map(this::fromCreateDTO).toList();
+    }
+
+
+
     public PaymentBase fromUpdateDTO(PaymentBaseUpdateDTO dto) {
 
         return PaymentBase.builder()

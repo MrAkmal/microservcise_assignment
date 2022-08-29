@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 public class PaymentBaseService {
 
@@ -36,6 +38,15 @@ public class PaymentBaseService {
         Mono<PaymentBase> paymentBaseMono = repository.save(mapper.fromCreateDTO(dto));
 
         return paymentBaseMono.map(mapper::toDTO);
+    }
+
+
+    public Flux<PaymentBaseDTO> saveAll(List<PaymentBaseCreateDTO> dto) {
+
+
+        Flux<PaymentBase> paymentBaseFlux = repository.saveAll(mapper.fromCreateDTO(dto));
+
+        return paymentBaseFlux.map(mapper::toDTO);
     }
 
 

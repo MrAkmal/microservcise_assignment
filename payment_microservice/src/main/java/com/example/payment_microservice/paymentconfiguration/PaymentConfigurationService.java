@@ -2,9 +2,7 @@ package com.example.payment_microservice.paymentconfiguration;
 
 import com.example.payment_microservice.dto.ProcurementMethodDTO;
 import com.example.payment_microservice.dto.ProcurementNatureDTO;
-import com.example.payment_microservice.payment.PaymentBase;
-import com.example.payment_microservice.payment.PaymentBaseDTO;
-import com.example.payment_microservice.payment.PaymentBaseRepository;
+import com.example.payment_microservice.payment.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +13,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PaymentConfigurationService {
@@ -22,6 +21,7 @@ public class PaymentConfigurationService {
     private final PaymentConfigurationRepository repository;
     private final PaymentBaseRepository paymentBaseRepository;
 
+    private final PaymentBaseService paymentBaseService;
     private final PaymentConfigurationMapper mapper;
 
 
@@ -29,9 +29,10 @@ public class PaymentConfigurationService {
     private final String procurementNatureURI = "http://localhost:1010/v1/procurement_nature";
 
     @Autowired
-    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentConfigurationMapper mapper) {
+    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper) {
         this.repository = repository;
         this.paymentBaseRepository = paymentBaseRepository;
+        this.paymentBaseService = paymentBaseService;
         this.mapper = mapper;
     }
 
@@ -99,12 +100,48 @@ public class PaymentConfigurationService {
     @Transactional
     public Mono<PaymentConfigurationDTO> save(PaymentConfigurationCreateDTO dto) {
 
-        Mono<PaymentConfiguration> paymentConfigurationMono = repository.save(mapper.fromCreateDTO(dto));
+        Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
+                .get()
+                .uri(procurementMethodURI + "/{id}", dto.getProcurementMethodId())
+                .retrieve()
+                .bodyToMono(ProcurementMethodDTO.class);
+
+        Mono<ProcurementNatureDTO> procurementNatureMono = WebClient.builder().build()
+                .get()
+                .uri(procurementNatureURI + "/{id}", dto.getProcurementNatureId())
+                .retrieve()
+                .bodyToMono(ProcurementNatureDTO.class);
+
+
+        Mono<PaymentConfiguration> paymentConfigurationMono = procurementMethodMono.flatMap(procurementMethodDTO -> {
+
+            return procurementNatureMono.flatMap(procurementNatureDTO -> {
+
+                return repository.save(mapper.fromCreateDTO(dto));
+            });
+
+        });
+
+
+        paymentConfigurationMono = paymentConfigurationMono.map(paymentConfiguration -> {
+
+            List<PaymentBaseCreateDTO> paymentBaseCreateDTOS = dto.getTypes().stream().map(typeCreateDTO -> {
+                return PaymentBaseCreateDTO.builder()
+                        .type(typeCreateDTO.getType())
+                        .active(typeCreateDTO.isActive())
+                        .paymentConfigurationId(paymentConfiguration.getId())
+                        .build();
+            }).toList();
+            paymentBaseService.saveAll(paymentBaseCreateDTOS);
+            return paymentConfiguration;
+        });
+
 
         return paymentConfigurationMono.flatMap(paymentConfiguration -> get(paymentConfiguration.getId()));
 
 
     }
+
 
     public Mono<Void> update(PaymentConfigurationUpdateDTO dto) {
 
