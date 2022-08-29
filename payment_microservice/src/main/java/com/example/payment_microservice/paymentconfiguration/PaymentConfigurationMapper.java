@@ -1,10 +1,9 @@
 package com.example.payment_microservice.paymentconfiguration;
 
 
+import com.example.payment_microservice.payment.PaymentBase;
 import com.example.payment_microservice.payment.PaymentBaseDTO;
-import com.example.payment_microservice.payment.PaymentBaseRepository;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -12,24 +11,65 @@ import java.util.List;
 public class PaymentConfigurationMapper {
 
 
-    private final PaymentBaseRepository repository;
+    public List<PaymentBaseDTO> toBaseDTO(List<PaymentBase> paymentBase) {
 
-    public PaymentConfigurationMapper(PaymentBaseRepository repository) {
-        this.repository = repository;
+
+        return paymentBase.stream().map(this::toBaseDTO).toList();
+
     }
 
-    public Mono<PaymentConfigurationDTO> toDto(PaymentConfiguration entity) {
 
-        Mono<PaymentConfigurationDTO> map = repository.findByPaymentConfigurationId(entity.getId()).map(paymentBase ->
-                PaymentConfigurationDTO.builder()
-                        .id(entity.getId())
-                        .procurementNatureName("1")
-                        .procurementMethodName("2")
-                        .payments(List.of(new PaymentBaseDTO(paymentBase.getId(), paymentBase.getType(), paymentBase.isActive())))
-                        .build());
+    public PaymentBaseDTO toBaseDTO(PaymentBase paymentBase) {
 
-        return map;
 
+        return PaymentBaseDTO.builder()
+                .id(paymentBase.getId())
+                .type(paymentBase.getType())
+                .active(paymentBase.isActive())
+                .build();
+
+    }
+
+
+//    public List<PaymentConfigurationDTO> toDTO(List<PaymentBase> paymentBase) {
+//
+//
+//        return paymentBase.stream().map(this::toBaseDTO).toList();
+//
+//    }
+//
+//
+//    public PaymentConfigurationDTO toDTO(PaymentConfiguration paymentConfiguration) {
+//
+//        return PaymentConfigurationDTO.builder()
+//                .id(paymentConfiguration.getId())
+//                .procurementNatureName()
+//                .procurementMethodName()
+//                .payments()
+//                .build();
+//    }
+
+
+
+
+
+
+    public PaymentConfiguration fromCreateDTO(PaymentConfigurationCreateDTO createDTO) {
+
+        return PaymentConfiguration.builder()
+                .procurementMethodId(createDTO.getProcurementMethodId())
+                .procurementNatureId(createDTO.getProcurementNatureId())
+                .build();
+
+    }
+
+    public PaymentConfiguration fromUpdateDTO(PaymentConfigurationUpdateDTO updateDTO) {
+
+        return PaymentConfiguration.builder()
+                .id(updateDTO.getId())
+                .procurementMethodId(updateDTO.getProcurementMethodId())
+                .procurementNatureId(updateDTO.getProcurementNatureId())
+                .build();
     }
 
 

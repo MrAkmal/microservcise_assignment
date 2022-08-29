@@ -1,4 +1,4 @@
-package com.example.payment_microservice.dto;
+package com.example.payment_microservice.paymentconfiguration;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,9 +9,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProcurementNatureDTO {
+public class PaymentConfigurationUpdateDTO {
+
 
     private int id;
 
-    private String name;
+    private int procurementNatureId;
+
+    private int procurementMethodId;
+
 }

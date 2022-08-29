@@ -1,11 +1,8 @@
 package com.example.payment_microservice.paymentconfiguration;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import nonapi.io.github.classgraph.json.Id;
+import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -13,7 +10,9 @@ import org.springframework.data.relational.core.mapping.Table;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("payment_configuration")
+@ToString
+@Builder
+@Table(name = "payment_configuration")
 public class PaymentConfiguration {
 
 

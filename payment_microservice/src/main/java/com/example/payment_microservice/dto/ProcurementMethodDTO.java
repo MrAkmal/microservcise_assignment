@@ -11,6 +11,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProcurementMethodDTO {
 
+    private int id;
+
+
     private String name;
 
+
+    private int procurementNatureId;
 }
