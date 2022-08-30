@@ -43,6 +43,13 @@ public class PaymentBaseService {
 
     public Flux<PaymentBaseDTO> saveAll(List<PaymentBaseCreateDTO> dto) {
 
+        System.out.println("\nPayment Base Service\n");
+
+        dto.forEach(paymentBaseCreateDTO -> {
+            System.out.println("paymentBaseCreateDTO.getPaymentConfigurationId() = " + paymentBaseCreateDTO.getPaymentConfigurationId());
+            System.out.println("paymentBaseCreateDTO.getType() = " + paymentBaseCreateDTO.getType());
+            System.out.println("paymentBaseCreateDTO.isActive() = " + paymentBaseCreateDTO.isActive());
+        });
 
         Flux<PaymentBase> paymentBaseFlux = repository.saveAll(mapper.fromCreateDTO(dto));
 
@@ -50,11 +57,12 @@ public class PaymentBaseService {
     }
 
 
-    public Mono<Void> update(PaymentBaseUpdateDTO dto) {
+    public Mono<PaymentBaseDTO> update(PaymentBaseUpdateDTO dto) {
 
-        repository.findById(dto.getId()).switchIfEmpty(Mono.empty()).map(paymentBase -> repository.save(mapper.fromUpdateDTO(dto)));
+        return repository.findById(dto.getId())
+                .switchIfEmpty(Mono.empty())
+                .flatMap(paymentBase -> repository.save(mapper.fromUpdateDTO(dto)).map(mapper::toDTO));
 
-        return Mono.empty();
     }
 
     public Mono<Void> delete(Integer id) {

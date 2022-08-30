@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/payment_base")
 public class PaymentBaseController {
@@ -17,7 +19,6 @@ public class PaymentBaseController {
     public PaymentBaseController(PaymentBaseService service) {
         this.service = service;
     }
-
 
 
     @GetMapping
@@ -39,8 +40,14 @@ public class PaymentBaseController {
     }
 
 
+    @PostMapping("/save-all")
+    public Flux<PaymentBaseDTO> saveAll(@RequestBody List<PaymentBaseCreateDTO> dto) {
+        return service.saveAll(dto);
+
+    }
+
     @PutMapping
-    public Mono<Void> update(@RequestBody PaymentBaseUpdateDTO dto) {
+    public Mono<PaymentBaseDTO> update(@RequestBody PaymentBaseUpdateDTO dto) {
         return service.update(dto);
     }
 
@@ -49,9 +56,6 @@ public class PaymentBaseController {
     public Mono<Void> delete(@PathVariable("id") Integer id) {
         return service.delete(id);
     }
-
-
-
 
 
 }
