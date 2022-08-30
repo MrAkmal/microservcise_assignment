@@ -15,13 +15,22 @@ public interface PaymentBaseRepository extends ReactiveCrudRepository<PaymentBas
     Mono<PaymentBase> findByPaymentConfigurationId(int paymentConfigurationId);
 
 
-    @Query("select * from payment_base where payment_configuration_id =:paymentConfigurationId")
-    Flux<PaymentBase> findPaymentBasesByPaymentConfigurationId(Integer paymentConfigurationId);
+    @Query("\n" +
+            "select cast(json_build_object('id', cte.id, 'type', cte.type, 'active', cte.active, 'configuration',cte.configuration) as text)\n" +
+            "from (select pb.id,\n" +
+            "             pb.is_active                AS active,\n" +
+            "             pb.payment_configuration_id AS configuration,\n" +
+            "             pt.type                     AS type\n" +
+            "      from payment_base pb\n" +
+            "               inner join payment_type pt on pb.payment_type_id = pt.id\n" +
+            "      where pb.payment_configuration_id = :paymentConfigurationId) cte;")
+
+    Flux<String> findPaymentBasesByPaymentConfigurationId(Integer paymentConfigurationId);
 
 
     @Transactional
     @Modifying
-    @Query("insert into payment_base(type,is_active) values (:#{#dto.type},:#{#dto.active})")
+    @Query("insert into payment_base(payment_type_id,is_active) values (:#{#dto.paymentTypeId},:#{#dto.active})")
     Mono<PaymentBase> saveCustom(PaymentBase dto);
 
     @Query("select cast(json_build_object('id',cte.id,'type',cte.paymentType,'active',cte.active,'config',cte.configId) as text)\n" +
