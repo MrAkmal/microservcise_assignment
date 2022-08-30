@@ -1,0 +1,24 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/head :: user-head">
+</head>
+<body>
+<nav th:replace="layouts/menu :: user-navbar"></nav>
+<div class="container" style="padding-top: 2rem">
+    <div class="row">
+        <div class="col-md-6 offset-3">
+            <form th:method="POST" th:action="@{/payment-type/update}" th:object="${paymentCreateDTO}">
+                <input type="hidden" th:field="*{id}">
+                <div class="form-group">
+                    <label for="yearFrom">Type</label>
+                    <input id="yearFrom" type="text" min="0" th:field="*{type}" class="form-control"
+                           placeholder="Enter Type"/>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save</button>
+                <a th:href="@{/payment-type}" class="btn btn-warning btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

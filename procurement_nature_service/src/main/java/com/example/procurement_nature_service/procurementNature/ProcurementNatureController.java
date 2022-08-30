@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/v1/procurement_nature")
@@ -20,14 +20,14 @@ public class ProcurementNatureController {
 
 
     @PostMapping
-    public Mono<ProcurementNature> save(@RequestBody ProcurementNature procurementMethod) {
+    public Mono<ProcurementNature> save(@Valid @RequestBody ProcurementNatureDTO procurementMethod) {
 
         return service.save(procurementMethod);
     }
 
 
     @PutMapping
-    public Mono<ProcurementNature> update(@RequestBody ProcurementNature method) {
+    public Mono<ProcurementNature> update(@Valid @RequestBody ProcurementNatureDTO method) {
 
         return service.update(method);
 

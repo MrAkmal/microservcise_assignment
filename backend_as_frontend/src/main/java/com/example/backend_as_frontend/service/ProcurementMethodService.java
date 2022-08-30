@@ -44,7 +44,7 @@ public class ProcurementMethodService {
     }
 
 
-    public List<ProcurementMethodDTO> getAll() {
+    public List<ProcurementMethod> getAll() {
 
         Mono<List<ProcurementMethod>> entity = webClient.get()
                 .uri(baseURI + "/list")
@@ -57,38 +57,22 @@ public class ProcurementMethodService {
         List<ProcurementMethod> block = entity.block();
         System.out.println("entity.block() = " + block);
 
-        assert block != null;
-
-        return block.stream().map(
-                s -> new ProcurementMethodDTO(
-                        s.getId(),
-                        s.getName(),
-                        procurementNatureService.getProcurementNatureName(s.getProcurementNatureId()))
-        ).collect(Collectors.toList());
+        return block;
     }
 
     public List<ProcurementMethodDTO> getAll(String fieldName) {
 
-        Mono<List<ProcurementMethod>> entity = webClient.get()
+        Mono<List<ProcurementMethodDTO>> entity = webClient.get()
                 .uri(baseURI + "?fieldName=" + fieldName)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(AUTHORIZATION, getToken())
                 .retrieve()
-                .bodyToFlux(ProcurementMethod.class)
+                .bodyToFlux(ProcurementMethodDTO.class)
                 .collectList();
 
-
-
-        List<ProcurementMethod> block = entity.block();
+        List<ProcurementMethodDTO> block = entity.block();
         System.out.println("entity.block() = " + block);
-
-        assert block != null;
-
-        return block.stream().map(
-                s -> new ProcurementMethodDTO(s.getId(),
-                        s.getName(),
-                        procurementNatureService.getProcurementNatureName(s.getProcurementNatureId()))
-        ).collect(Collectors.toList());
+        return block;
     }
 
 
