@@ -40,7 +40,12 @@ public class PaymentTypeService {
     }
 
     public Mono<PaymentType> update(PaymentType dto) {
-        return repository.findById(dto.getId()).switchIfEmpty(Mono.empty()).flatMap(repository::save);
+        return repository.findById(dto.getId())
+                .flatMap(paymentType -> {
+                    paymentType.setType(dto.getType());
+                    return repository.save(paymentType);
+                })
+                .switchIfEmpty(Mono.empty());
     }
 
     public Mono<Void> delete(Integer id) {
