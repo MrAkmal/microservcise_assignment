@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/v1/payment_configuration")
+@RequestMapping("/v1/payment/payment_configuration")
 public class PaymentConfigurationController {
 
     private final PaymentConfigurationService service;

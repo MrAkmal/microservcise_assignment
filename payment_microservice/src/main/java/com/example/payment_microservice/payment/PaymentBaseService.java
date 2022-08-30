@@ -41,7 +41,7 @@ public class PaymentBaseService {
     }
 
 
-    public void saveAll(List<PaymentBaseCreateDTO> dto) {
+    public Flux<PaymentBaseDTO> saveAll(List<PaymentBaseCreateDTO> dto) {
 
         System.out.println("\nPayment Base Service\n");
 
@@ -51,13 +51,8 @@ public class PaymentBaseService {
             System.out.println("paymentBaseCreateDTO.isActive() = " + paymentBaseCreateDTO.isActive());
         });
 
-//        Flux<PaymentBase> paymentBaseFlux = repository.saveAll(mapper.fromCreateDTO(dto));
-
-        for (PaymentBaseCreateDTO paymentBaseCreateDTO : dto) {
-            Mono<PaymentBaseDTO> save = save(paymentBaseCreateDTO);
-        }
-
-//        return paymentBaseFlux.map(mapper::toDTO);
+        Flux<PaymentBase> paymentBaseFlux = repository.saveAll(mapper.fromCreateDTO(dto));
+        return paymentBaseFlux.map(mapper::toDTO);
     }
 
 
