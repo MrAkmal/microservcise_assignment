@@ -1,5 +1,6 @@
 package com.example.payment_microservice.payment;
 
+import com.example.payment_microservice.paymenttype.PaymentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -15,20 +16,33 @@ public class PaymentBaseService {
 
     private final PaymentBaseMapper mapper;
 
+    private final PaymentTypeService paymentTypeService;
+
+
     @Autowired
-    public PaymentBaseService(PaymentBaseRepository repository, PaymentBaseMapper mapper) {
+    public PaymentBaseService(PaymentBaseRepository repository, PaymentBaseMapper mapper, PaymentTypeService paymentTypeService) {
         this.repository = repository;
         this.mapper = mapper;
+        this.paymentTypeService = paymentTypeService;
     }
 
 
     public Flux<PaymentBaseDTO> getAll() {
-        return repository.findAll().switchIfEmpty(Flux.empty()).map(mapper::toDTO);
+//        return repository.findAll().switchIfEmpty(Flux.empty()).map(mapper::toDTO);
+        return repository.findAll().switchIfEmpty(Flux.empty()).flatMap(paymentBase -> {
+            return paymentTypeService.get(paymentBase.getId()).map(paymentType -> {
+                return mapper.toDTO(paymentBase, paymentType.getType());
+            });
+        });
     }
 
     public Mono<PaymentBaseDTO> get(Integer id) {
 
-        return repository.findById(id).switchIfEmpty(Mono.empty()).map(mapper::toDTO);
+        return repository.findById(id).switchIfEmpty(Mono.empty()).flatMap(paymentBase -> {
+            return paymentTypeService.get(paymentBase.getId()).map(paymentType -> {
+                return mapper.toDTO(paymentBase, paymentType.getType());
+            });
+        });
 
     }
 
@@ -37,23 +51,23 @@ public class PaymentBaseService {
 
         Mono<PaymentBase> paymentBaseMono = repository.save(mapper.fromCreateDTO(dto));
 
-        return paymentBaseMono.map(mapper::toDTO);
+        return paymentBaseMono.flatMap(paymentBase -> {
+            return paymentTypeService.get(paymentBase.getId()).map(paymentType -> {
+                return mapper.toDTO(paymentBase, paymentType.getType());
+            });
+        });
     }
 
 
     public Flux<PaymentBaseDTO> saveAll(List<PaymentBaseCreateDTO> dto) {
 
-        System.out.println("\nPayment Base Service\n");
-
-        dto.forEach(paymentBaseCreateDTO -> {
-            System.out.println("paymentBaseCreateDTO.getPaymentConfigurationId() = " + paymentBaseCreateDTO.getPaymentConfigurationId());
-            System.out.println("paymentBaseCreateDTO.getType() = " + paymentBaseCreateDTO.getType());
-            System.out.println("paymentBaseCreateDTO.isActive() = " + paymentBaseCreateDTO.isActive());
-        });
-
         Flux<PaymentBase> paymentBaseFlux = repository.saveAll(mapper.fromCreateDTO(dto));
 
-        return paymentBaseFlux.map(mapper::toDTO);
+        return paymentBaseFlux.flatMap(paymentBase -> {
+            return paymentTypeService.get(paymentBase.getId()).map(paymentType -> {
+                return mapper.toDTO(paymentBase, paymentType.getType());
+            });
+        });
     }
 
 
@@ -61,7 +75,11 @@ public class PaymentBaseService {
 
         return repository.findById(dto.getId())
                 .switchIfEmpty(Mono.empty())
-                .flatMap(paymentBase -> repository.save(mapper.fromUpdateDTO(dto)).map(mapper::toDTO));
+                .flatMap(paymentBase -> repository.save(mapper.fromUpdateDTO(dto)).flatMap(paymentBase2 -> {
+                    return paymentTypeService.get(paymentBase2.getId()).map(paymentType -> {
+                        return mapper.toDTO(paymentBase2, paymentType.getType());
+                    });
+                }));
 
     }
 

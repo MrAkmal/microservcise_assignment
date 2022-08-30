@@ -19,7 +19,7 @@ public class PaymentBase {
     private int id;
 
     @Column("type")
-    private String type;
+    private int paymentTypeId;
 
 
     @Column("is_active")

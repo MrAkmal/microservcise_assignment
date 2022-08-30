@@ -12,7 +12,7 @@ public class PaymentBaseMapper {
 
         return PaymentBase.builder()
                 .active(dto.isActive())
-                .type(dto.getType())
+                .paymentTypeId(dto.getPaymentTypeId())
                 .paymentConfigurationId(dto.getPaymentConfigurationId())
                 .build();
     }
@@ -30,24 +30,24 @@ public class PaymentBaseMapper {
         return PaymentBase.builder()
                 .id(dto.getId())
                 .active(dto.isActive())
-                .type(dto.getType())
+                .paymentTypeId(dto.getPaymentTypeId())
                 .paymentConfigurationId(dto.getPaymentConfigurationId())
                 .build();
     }
 
 
-    public List<PaymentBaseDTO> toDTO(List<PaymentBase> entities) {
+//    public List<PaymentBaseDTO> toDTO(List<PaymentBase> entities) {
+//
+//        return entities.stream().map().toList();
+//    }
 
-        return entities.stream().map(this::toDTO).toList();
-    }
 
-
-    public PaymentBaseDTO toDTO(PaymentBase entity) {
+    public PaymentBaseDTO toDTO(PaymentBase entity,String paymentType) {
 
         return PaymentBaseDTO.builder()
                 .id(entity.getId())
                 .active(entity.isActive())
-                .type(entity.getType())
+                .paymentType(paymentType)
                 .paymentConfigurationId(entity.getPaymentConfigurationId())
                 .build();
     }

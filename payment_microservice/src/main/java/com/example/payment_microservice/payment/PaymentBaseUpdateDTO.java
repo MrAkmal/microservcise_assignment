@@ -12,7 +12,7 @@ public class PaymentBaseUpdateDTO {
 
     private int id;
 
-    private String type;
+    private int paymentTypeId;
 
 
     private boolean active;

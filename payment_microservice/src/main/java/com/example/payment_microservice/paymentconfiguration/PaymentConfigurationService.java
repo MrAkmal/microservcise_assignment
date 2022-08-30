@@ -2,19 +2,20 @@ package com.example.payment_microservice.paymentconfiguration;
 
 import com.example.payment_microservice.dto.ProcurementMethodDTO;
 import com.example.payment_microservice.dto.ProcurementNatureDTO;
-import com.example.payment_microservice.payment.*;
+import com.example.payment_microservice.payment.PaymentBase;
+import com.example.payment_microservice.payment.PaymentBaseDTO;
+import com.example.payment_microservice.payment.PaymentBaseRepository;
+import com.example.payment_microservice.payment.PaymentBaseService;
+import com.example.payment_microservice.paymenttype.PaymentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class PaymentConfigurationService {
@@ -25,16 +26,19 @@ public class PaymentConfigurationService {
     private final PaymentBaseService paymentBaseService;
     private final PaymentConfigurationMapper mapper;
 
+    private final PaymentTypeService paymentTypeService;
+
 
     private final String procurementMethodURI = "http://localhost:2020/v1/procurement_method";
     private final String procurementNatureURI = "http://localhost:1010/v1/procurement_nature";
 
     @Autowired
-    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper) {
+    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper, PaymentTypeService paymentTypeService) {
         this.repository = repository;
         this.paymentBaseRepository = paymentBaseRepository;
         this.paymentBaseService = paymentBaseService;
         this.mapper = mapper;
+        this.paymentTypeService = paymentTypeService;
     }
 
 
@@ -71,8 +75,8 @@ public class PaymentConfigurationService {
 
             Mono<Tuple2<ProcurementMethodDTO, ProcurementNatureDTO>> zip = Mono.zip(procurementMethodMono, procurementNatureMono);
 
-            return paymentBaseFlux.collectList().flatMap(paymentBase -> {
 
+            return paymentBaseFlux.collectList().flatMap(paymentBase -> {
 
                 return zip.map(objects -> {
 
@@ -81,7 +85,7 @@ public class PaymentConfigurationService {
                             .payments(paymentBase.stream().map(paymentBase1 -> {
                                 return PaymentBaseDTO.builder()
                                         .id(paymentBase1.getId())
-                                        .type(paymentBase1.getType())
+                                        .paymentType(paymentBase1.getPaymentTypeId())
                                         .active(paymentBase1.isActive())
                                         .build();
                             }).toList())

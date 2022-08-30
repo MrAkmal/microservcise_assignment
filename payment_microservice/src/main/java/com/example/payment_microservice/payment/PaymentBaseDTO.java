@@ -14,7 +14,7 @@ public class PaymentBaseDTO {
 
     private int id;
 
-    private String type;
+    private String paymentType;
 
     private boolean active;
 

@@ -11,7 +11,7 @@ public class PaymentBaseCreateDTO {
 
 
 
-    private String type;
+    private int paymentTypeId;
 
     private boolean active;
 

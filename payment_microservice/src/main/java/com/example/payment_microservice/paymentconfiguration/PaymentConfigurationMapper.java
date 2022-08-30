@@ -4,10 +4,7 @@ package com.example.payment_microservice.paymentconfiguration;
 import com.example.payment_microservice.payment.PaymentBase;
 import com.example.payment_microservice.payment.PaymentBaseDTO;
 import org.springframework.stereotype.Component;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,35 +13,35 @@ import java.util.List;
 public class PaymentConfigurationMapper {
 
 
-    public List<PaymentBaseDTO> toBaseDTO(Flux<PaymentBase> paymentBase) {
-
-        List<PaymentBaseDTO> list = new ArrayList<>();
-//        paymentBase.subscribe(base -> {
-//            System.out.println("base = " + base);
-//            list.add(toBaseDTO(base));
-//        });
-
-        paymentBase
-                .collectList()
-
-                .doOnNext(paymentBases -> {
-                    for (PaymentBase base : paymentBases) {
-                        list.add(toBaseDTO(base));
-                    }
-                })
-                .subscribe();
-
-        return list;
-
-    }
-
-
-    public PaymentBaseDTO toBaseDTO(PaymentBase paymentBase) {
+//    public List<PaymentBaseDTO> toBaseDTO(Flux<PaymentBase> paymentBase) {
+//
+//        List<PaymentBaseDTO> list = new ArrayList<>();
+////        paymentBase.subscribe(base -> {
+////            System.out.println("base = " + base);
+////            list.add(toBaseDTO(base));
+////        });
+//
+//        paymentBase
+//                .collectList()
+//
+//                .doOnNext(paymentBases -> {
+//                    for (PaymentBase base : paymentBases) {
+//                        list.add(toBaseDTO(base));
+//                    }
+//                })
+//                .subscribe();
+//
+//        return list;
+//
+//    }
+//
+//
+    public PaymentBaseDTO toBaseDTO(PaymentBase paymentBase,String paymentType) {
 
 
         return PaymentBaseDTO.builder()
                 .id(paymentBase.getId())
-                .type(paymentBase.getType())
+                .paymentType(paymentType)
                 .active(paymentBase.isActive())
                 .build();
 
