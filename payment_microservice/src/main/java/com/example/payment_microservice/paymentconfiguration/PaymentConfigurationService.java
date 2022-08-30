@@ -85,7 +85,7 @@ public class PaymentConfigurationService {
                             .payments(paymentBase.stream().map(paymentBase1 -> {
                                 return PaymentBaseDTO.builder()
                                         .id(paymentBase1.getId())
-                                        .paymentType(paymentBase1.getPaymentTypeId())
+//                                        .paymentType(paymentBase1.getPaymentTypeId())
                                         .active(paymentBase1.isActive())
                                         .build();
                             }).toList())

@@ -45,6 +45,7 @@ public class PaymentTypeController {
 
     @PutMapping
     public Mono<PaymentType> update(@RequestBody PaymentType dto) {
+        System.out.println("dto = " + dto.getType());
         return service.update(dto);
     }
 
