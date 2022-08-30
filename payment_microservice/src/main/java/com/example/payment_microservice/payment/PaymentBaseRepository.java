@@ -24,7 +24,6 @@ public interface PaymentBaseRepository extends ReactiveCrudRepository<PaymentBas
             "      from payment_base pb\n" +
             "               inner join payment_type pt on pb.payment_type_id = pt.id\n" +
             "      where pb.payment_configuration_id = :paymentConfigurationId) cte;")
-
     Flux<String> findPaymentBasesByPaymentConfigurationId(Integer paymentConfigurationId);
 
 
@@ -43,4 +42,8 @@ public interface PaymentBaseRepository extends ReactiveCrudRepository<PaymentBas
             "               join payment_configuration pc on pc.id = payment_base.payment_configuration_id)cte")
     Flux<String> getAll();
 
+    @Modifying
+    @Transactional
+    @Query("delete from payment_base where payment_configuration_id = :id ")
+    Mono<Void> deleteByPaymentConfigId(Integer id);
 }
