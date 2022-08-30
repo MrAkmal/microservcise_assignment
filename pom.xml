@@ -23,6 +23,11 @@
         <module>service_discovery</module>
         <module>authorization_service</module>
         <module>resource_server</module>
+        <module>procurement_method_service</module>
+        <module>procurement_nature_service</module>
+        <module>backend_as_frontend</module>
+        <module>financial_year_service</module>
+        <module>api_gateway</module>
     </modules>
 
     <build>

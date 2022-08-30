@@ -1,0 +1,24 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/head :: user-head">
+</head>
+<body>
+<nav th:replace="layouts/menu :: user-navbar"></nav>
+<div class="container" style="padding-top: 2rem">
+    <div class="row">
+        <div class="col-md-6 offset-3">
+
+            <form th:method="POST" th:action="@{/procurement-nature}" th:object="${procurementNature}">
+                <input type="hidden" th:field="*{id}">
+                <div class="form-group">
+                    <label for="financialYear">Procurement Nature</label>
+                    <input type="text" th:field="*{name}" class="form-control" id="financialYear"
+                           placeholder="Enter Procurement Nature"/>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save</button>
+                <a th:href="@{/procurement-nature}" class="btn btn-warning btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/head :: user-head">
+</head>
+<body>
+<nav th:replace="layouts/menu :: user-navbar"></nav>
+<div class="container" style="padding-top: 2rem">
+    <div class="row">
+        <div class="col-md-6 offset-3">
+            <form th:method="POST" th:action="@{/financial-year}" th:object="${financialYear}">
+                <input type="hidden" th:field="*{id}">
+                <div class="form-group">
+                    <label for="yearFrom">Year From</label>
+                    <input id="yearFrom" type="number" min="0" th:field="*{yearFrom}" class="form-control"
+                           placeholder="Enter Financial Year"/>
+                </div>
+                <div class="form-group">
+                    <label for="yearTo">Year To</label>
+                    <input type="number" min="0" th:field="*{yearTo}" class="form-control" id="yearTo"
+                           placeholder="Enter Financial Year" readonly/>
+                </div>
+                <div class="form-group">
+                    <label for="isDefault">isDefault</label>
+                    <input type="checkbox" id="isDefault" th:field="*{default}" th:checked="*{isDefault()}"/>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save</button>
+                <a th:href="@{/financial-year}" class="btn btn-warning btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+
+
+    function writeYearTo() {
+        let value = parseInt(document.getElementById("yearFrom").value);
+        document.getElementById("yearTo").value = value + 1;
+    }
+
+    document.getElementById("yearFrom").addEventListener('input', writeYearTo);
+</script>
+</body>
+</html>

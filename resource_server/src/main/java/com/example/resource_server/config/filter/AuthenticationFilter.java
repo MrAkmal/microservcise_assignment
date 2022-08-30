@@ -79,8 +79,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 HttpMethod.POST, entity, SessionDTO.class).getBody();
 
 
+        DataDTO data = new DataDTO(sessionDTO);
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        mapper.writeValue(response.getOutputStream(), sessionDTO);
+        mapper.writeValue(response.getOutputStream(), data);
 
     }
 
