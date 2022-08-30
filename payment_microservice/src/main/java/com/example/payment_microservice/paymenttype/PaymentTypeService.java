@@ -1,13 +1,11 @@
 package com.example.payment_microservice.paymenttype;
 
-import com.example.payment_microservice.exception.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class PaymentTypeService {
