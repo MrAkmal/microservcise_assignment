@@ -41,12 +41,16 @@ public class PaymentBaseService {
     }
 
 
-    public Flux<PaymentBaseDTO> saveAll(List<PaymentBaseCreateDTO> dto) {
+    public void saveAll(List<PaymentBaseCreateDTO> dto) {
 
 
-        Flux<PaymentBase> paymentBaseFlux = repository.saveAll(mapper.fromCreateDTO(dto));
+//        Flux<PaymentBase> paymentBaseFlux = repository.saveAll(mapper.fromCreateDTO(dto));
 
-        return paymentBaseFlux.map(mapper::toDTO);
+        for (PaymentBaseCreateDTO paymentBaseCreateDTO : dto) {
+            Mono<PaymentBaseDTO> save = save(paymentBaseCreateDTO);
+        }
+
+//        return paymentBaseFlux.map(mapper::toDTO);
     }
 
 

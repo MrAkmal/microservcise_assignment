@@ -40,6 +40,8 @@ public class PaymentConfigurationController {
     }
 
 
+
+
     @GetMapping("/test")
     public String test() {
         Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()

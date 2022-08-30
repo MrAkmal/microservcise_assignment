@@ -11,9 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class PaymentConfigurationService {
@@ -24,16 +22,19 @@ public class PaymentConfigurationService {
     private final PaymentBaseService paymentBaseService;
     private final PaymentConfigurationMapper mapper;
 
+    private final PaymentBaseMapper paymentBaseMapper;
+
 
     private final String procurementMethodURI = "http://localhost:2020/v1/procurement_method";
     private final String procurementNatureURI = "http://localhost:1010/v1/procurement_nature";
 
     @Autowired
-    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper) {
+    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper, PaymentBaseMapper paymentBaseMapper) {
         this.repository = repository;
         this.paymentBaseRepository = paymentBaseRepository;
         this.paymentBaseService = paymentBaseService;
         this.mapper = mapper;
+        this.paymentBaseMapper = paymentBaseMapper;
     }
 
 
@@ -132,7 +133,8 @@ public class PaymentConfigurationService {
                         .paymentConfigurationId(paymentConfiguration.getId())
                         .build();
             }).toList();
-            paymentBaseService.saveAll(paymentBaseCreateDTOS);
+//            paymentBaseService.saveAll(paymentBaseCreateDTOS);
+            paymentBaseRepository.saveAll(paymentBaseMapper.fromCreateDTO(paymentBaseCreateDTOS));
             return paymentConfiguration;
         });
 
