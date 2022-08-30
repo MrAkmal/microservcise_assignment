@@ -31,7 +31,7 @@ public class CustomRouteLocatorClass {
                         .uri("lb://procurement-method-server"))
 
 
-                .route("payment-server", r -> r.path("/v1/payment-server/**")
+                .route("payment-server", r -> r.path("/v1/payment/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://payment-server"))
 
