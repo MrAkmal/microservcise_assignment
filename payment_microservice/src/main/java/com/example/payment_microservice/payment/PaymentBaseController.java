@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/payment_base")
+@RequestMapping("/v1/payment/payment_base")
 public class PaymentBaseController {
 
 
@@ -42,8 +42,8 @@ public class PaymentBaseController {
 
     @PostMapping("/save-all")
     public Flux<PaymentBaseDTO> saveAll(@RequestBody List<PaymentBaseCreateDTO> dto) {
+        System.out.println("dto = " + dto);
         return service.saveAll(dto);
-
     }
 
     @PutMapping
