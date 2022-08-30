@@ -18,7 +18,7 @@ public class PaymentBase {
     @Column("id")
     private int id;
 
-    @Column("type")
+    @Column("payment_type_id")
     private int paymentTypeId;
 
 

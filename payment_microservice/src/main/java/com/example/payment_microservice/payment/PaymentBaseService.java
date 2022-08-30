@@ -29,8 +29,9 @@ public class PaymentBaseService {
 
     public Flux<PaymentBaseDTO> getAll() {
 //        return repository.findAll().switchIfEmpty(Flux.empty()).map(mapper::toDTO);
-        return repository.findAll().switchIfEmpty(Flux.empty()).flatMap(paymentBase -> {
-            return paymentTypeService.get(paymentBase.getId()).map(paymentType -> {
+        return repository.findAll().switchIfEmpty(Flux.empty())
+                .flatMap(paymentBase -> {
+            return paymentTypeService.get(paymentBase.getPaymentTypeId()).map(paymentType -> {
                 return mapper.toDTO(paymentBase, paymentType.getType());
             });
         });
@@ -39,7 +40,7 @@ public class PaymentBaseService {
     public Mono<PaymentBaseDTO> get(Integer id) {
 
         return repository.findById(id).switchIfEmpty(Mono.empty()).flatMap(paymentBase -> {
-            return paymentTypeService.get(paymentBase.getId()).map(paymentType -> {
+            return paymentTypeService.get(paymentBase.getPaymentTypeId()).map(paymentType -> {
                 return mapper.toDTO(paymentBase, paymentType.getType());
             });
         });
@@ -52,7 +53,7 @@ public class PaymentBaseService {
         Mono<PaymentBase> paymentBaseMono = repository.save(mapper.fromCreateDTO(dto));
 
         return paymentBaseMono.flatMap(paymentBase -> {
-            return paymentTypeService.get(paymentBase.getId()).map(paymentType -> {
+            return paymentTypeService.get(paymentBase.getPaymentTypeId()).map(paymentType -> {
                 return mapper.toDTO(paymentBase, paymentType.getType());
             });
         });
@@ -64,7 +65,7 @@ public class PaymentBaseService {
         Flux<PaymentBase> paymentBaseFlux = repository.saveAll(mapper.fromCreateDTO(dto));
 
         return paymentBaseFlux.flatMap(paymentBase -> {
-            return paymentTypeService.get(paymentBase.getId()).map(paymentType -> {
+            return paymentTypeService.get(paymentBase.getPaymentTypeId()).map(paymentType -> {
                 return mapper.toDTO(paymentBase, paymentType.getType());
             });
         });
@@ -76,7 +77,7 @@ public class PaymentBaseService {
         return repository.findById(dto.getId())
                 .switchIfEmpty(Mono.empty())
                 .flatMap(paymentBase -> repository.save(mapper.fromUpdateDTO(dto)).flatMap(paymentBase2 -> {
-                    return paymentTypeService.get(paymentBase2.getId()).map(paymentType -> {
+                    return paymentTypeService.get(paymentBase2.getPaymentTypeId()).map(paymentType -> {
                         return mapper.toDTO(paymentBase2, paymentType.getType());
                     });
                 }));
