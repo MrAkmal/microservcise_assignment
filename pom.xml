@@ -20,6 +20,7 @@
     <modules>
         <module>payment_microservice</module>
         <module>keyword_microservice</module>
+        <module>service_discovery</module>
     </modules>
 
     <build>

@@ -10,6 +10,7 @@ import lombok.*;
 public class PaymentBaseCreateDTO {
 
 
+
     private String type;
 
     private boolean active;

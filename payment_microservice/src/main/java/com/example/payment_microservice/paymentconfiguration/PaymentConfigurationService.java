@@ -9,9 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PaymentConfigurationService {
@@ -22,19 +25,16 @@ public class PaymentConfigurationService {
     private final PaymentBaseService paymentBaseService;
     private final PaymentConfigurationMapper mapper;
 
-    private final PaymentBaseMapper paymentBaseMapper;
-
 
     private final String procurementMethodURI = "http://localhost:2020/v1/procurement_method";
     private final String procurementNatureURI = "http://localhost:1010/v1/procurement_nature";
 
     @Autowired
-    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper, PaymentBaseMapper paymentBaseMapper) {
+    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper) {
         this.repository = repository;
         this.paymentBaseRepository = paymentBaseRepository;
         this.paymentBaseService = paymentBaseService;
         this.mapper = mapper;
-        this.paymentBaseMapper = paymentBaseMapper;
     }
 
 
@@ -118,29 +118,33 @@ public class PaymentConfigurationService {
 
             return procurementNatureMono.flatMap(procurementNatureDTO -> {
 
-                return repository.save(mapper.fromCreateDTO(dto));
+                Mono<PaymentConfiguration> paymentConfigurationMono1 = repository.save(mapper.fromCreateDTO(dto));
+//                        .doOnNext(paymentConfiguration -> {
+//                    List<PaymentBaseCreateDTO> paymentBaseCreateDTOS = dto.getTypes().stream().map(typeCreateDTO -> {
+//                        return PaymentBaseCreateDTO.builder()
+//                                .type(typeCreateDTO.getType())
+//                                .active(typeCreateDTO.isActive())
+//                                .paymentConfigurationId(paymentConfiguration.getId())
+//                                .build();
+//                    }).toList();
+//
+//                    paymentBaseCreateDTOS.forEach(paymentBaseCreateDTO -> {
+//                        System.out.println("paymentBaseCreateDTO.getPaymentConfigurationId() = " + paymentBaseCreateDTO.getPaymentConfigurationId());
+//                        System.out.println("paymentBaseCreateDTO.getType() = " + paymentBaseCreateDTO.getType());
+//                        System.out.println("paymentBaseCreateDTO.isActive() = " + paymentBaseCreateDTO.isActive());
+//                    });
+//
+//                    Flux<PaymentBaseDTO> paymentBaseDTOFlux = paymentBaseService.saveAll(paymentBaseCreateDTOS);
+//
+//                    paymentBaseDTOFlux.subscribe(System.out::println);
+//
+//                });
+                return paymentConfigurationMono1;
             });
-
-        });
-
-
-        paymentConfigurationMono = paymentConfigurationMono.map(paymentConfiguration -> {
-
-            List<PaymentBaseCreateDTO> paymentBaseCreateDTOS = dto.getTypes().stream().map(typeCreateDTO -> {
-                return PaymentBaseCreateDTO.builder()
-                        .type(typeCreateDTO.getType())
-                        .active(typeCreateDTO.isActive())
-                        .paymentConfigurationId(paymentConfiguration.getId())
-                        .build();
-            }).toList();
-//            paymentBaseService.saveAll(paymentBaseCreateDTOS);
-            paymentBaseRepository.saveAll(paymentBaseMapper.fromCreateDTO(paymentBaseCreateDTOS));
-            return paymentConfiguration;
         });
 
 
         return paymentConfigurationMono.flatMap(paymentConfiguration -> get(paymentConfiguration.getId()));
-
 
     }
 
