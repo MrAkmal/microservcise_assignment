@@ -1,0 +1,147 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/head :: user-head">
+</head>
+<body>
+<nav th:replace="layouts/menu :: user-navbar"></nav>
+<div class="container" id="paymentConfigNo">
+    <div class="d-flex justify-content-center" style="padding-top: 10%;padding-bottom: 10%">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</div>
+<div class="container" id="paymentConfigList" style="padding-top: 2rem;display: none">
+    <div class="row">
+        <div class="col-md-12">
+            <h4><a class="btn btn-primary btn-sm" th:href="@{/payment-config/create}"><i class="fa fa-plus"></i> Add</a>
+            </h4>
+            <br>
+            <table class="table table-bordered table-striped" style="text-align: center">
+                <thead style="background-color: #04C3FC;">
+                <tr>
+                    <th scope="col" style="border-bottom: 2px solid #f00;">#</th>
+                    <th scope="col" style="border-bottom: 2px solid #f00;">Procurement Method</th>
+                    <th scope="col" style="border-bottom: 2px solid #f00;">Procurement Nature</th>
+                    <th th:each="paymentType: ${paymentTypes}" th:text="${paymentType.type}" scope="col"
+                        style="border-bottom: 2px solid #f00;">
+                    </th>
+                    <th scope="col" style="border-bottom: 2px solid #f00;" colspan="2">Settings</th>
+                </tr>
+                </thead>
+                <tbody class="table_columns">
+                </tbody>
+                <thead style="background-color: #08A51F;border-top-color: red;">
+                <tr style="padding: 2rem">
+                    <th scope="col" style=" border-top: 2px solid #f00;padding: 1.26rem"></th>
+                    <th scope="col" style=" border-top: 2px solid #f00;padding: 1.26rem"></th>
+                    <th scope="col" style=" border-top: 2px solid #f00;padding: 1.26rem"></th>
+                    <th th:each="paymentType: ${paymentTypes}" scope="col"
+                        style=" border-top: 2px solid #f00;padding: 1.26rem">
+                    </th>
+                    <th scope="col" style=" border-top: 2px solid #f00;padding: 1.26rem" colspan="2"></th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+    $(window).on("load", function () {
+        $('body').addClass('loaded');
+    });
+
+    getAllPaymentConfig();
+
+
+    let paymentConfiguration = [];
+    let paymentTypes = [];
+
+    function getAllPaymentConfig() {
+        fetch('/v1/payment_config_rest/list')
+            .then(response => response.json())
+            .then(data => {
+                    console.log(data);
+                    paymentConfiguration = data;
+                    console.log("Payment Config :", paymentConfiguration);
+                    getAllPaymentTypes();
+                }
+            );
+    }
+
+    function getAllPaymentTypes() {
+        fetch('/v1/payment_config_rest')
+            .then(response => response.json())
+            .then(data => {
+                    console.log(data);
+                    paymentTypes = data;
+                    console.log("PaymentTypes :", paymentTypes);
+                    displayAllData(data);
+                }
+            );
+    }
+
+    function displayAllData() {
+        let index = 1;
+
+        const tableColumn = $(".table_columns");
+
+        for (let i = 0; i < paymentConfiguration.length; i++) {
+            let typesStr = "";
+            for (let j = 0; j < paymentTypes.length; j++) {
+
+                for (let k = 0; k < paymentConfiguration[i].payments.length; k++) {
+                    if (paymentConfiguration[i].payments[k].paymentType === paymentTypes[j].type &&
+                        paymentConfiguration[i].payments[k].active === true) {
+
+                        typesStr += "<td><span class=\"badge badge-success\">Yes</span></td>";
+                    } else if (paymentConfiguration[i].payments[k].paymentType === paymentTypes[j].type &&
+                        paymentConfiguration[i].payments[k].active === false) {
+
+                        typesStr += "<td><span class=\"badge badge-danger\">No</span></td>";
+                    }
+                }
+            }
+
+            let payData = [];
+            let configData = [];
+
+            for (let j = 0; j < paymentConfiguration[i].payments.length; j++) {
+                configData.push(paymentConfiguration[i].payments[j].paymentType);
+            }
+
+            for (let j = 0; j < paymentTypes.length; j++) {
+                payData.push(paymentTypes[j].type);
+            }
+
+            let newData = payData.filter(ar =>
+                !configData.find(rm => (rm === ar)))
+
+            for (let j = 0; j < newData.length; j++) {
+                typesStr += "<td><span class=\"badge badge-warning\">Not</span></td>";
+            }
+
+            $(tableColumn).append(
+                "<tr>" +
+                "<th scope='row'>" + (index++) + "</th> " +
+                "<td>" + paymentConfiguration[i].procurementMethodName + "</td>" +
+                "<td>" + paymentConfiguration[i].procurementNatureName + "</td>" +
+                typesStr +
+                "  <td><a class=\"btn btn-info btn-sm\" href='/payment-config/update/" + paymentConfiguration[i].id + "'><i\n" +
+                "                            class=\"fa fa-edit\"></i></a></td>" +
+                "  <td><a onclick=\"return confirm('Are you sure you want to delete this item')\" href='/payment-config/delete/" + paymentConfiguration[i].id + "'><i class=\"btn btn-danger btn-sm\" href='/payment-type/delete/" + paymentConfiguration[i].id + "'><i\n" +
+                "                            class=\"fa fa-trash\"></i></a></td>" +
+                "</tr>"
+            );
+        }
+
+        document.getElementById("paymentConfigList").style.display = "block";
+        document.getElementById("paymentConfigNo").style.display = "none";
+
+    }
+
+
+</script>
+</body>
+</html>
