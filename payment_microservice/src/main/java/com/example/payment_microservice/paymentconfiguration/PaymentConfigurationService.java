@@ -153,6 +153,9 @@ public class PaymentConfigurationService {
 
 
     public Mono<Void> delete(Integer id) {
+
+        Mono<Void> mono = paymentBaseRepository.deleteByPaymentConfigId(id);
+        mono.subscribe(a -> System.out.println(a));
         return repository.deleteById(id);
     }
 }

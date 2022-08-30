@@ -1,6 +1,7 @@
 package com.example.payment_microservice.payment;
 
 
+import com.example.payment_microservice.paymenttype.PaymentBaseTypeProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -57,5 +58,10 @@ public class PaymentBaseController {
         return service.delete(id);
     }
 
+
+    @GetMapping("/test")
+    public Flux<String> test() {
+        return service.test();
+    }
 
 }

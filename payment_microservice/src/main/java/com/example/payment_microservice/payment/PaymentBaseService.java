@@ -1,6 +1,8 @@
 package com.example.payment_microservice.payment;
 
+import com.example.payment_microservice.paymenttype.PaymentBaseTypeProjection;
 import com.example.payment_microservice.paymenttype.PaymentTypeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -86,5 +88,21 @@ public class PaymentBaseService {
 
     public Mono<Void> delete(Integer id) {
         return repository.deleteById(id);
+    }
+
+    public Flux<String> test() {
+        Flux<String> all = repository.getAll();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        all.subscribe(str -> {
+            System.out.println("str = " + str);
+            try {
+                PaymentBaseTypeProjection paymentBaseTypeProjection = objectMapper.readValue(str, PaymentBaseTypeProjection.class);
+                System.out.println("paymentBaseTypeProjection = " + paymentBaseTypeProjection);
+            } catch (Exception e) {
+            }
+        });
+
+        return all;
     }
 }
