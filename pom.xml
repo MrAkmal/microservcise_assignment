@@ -21,6 +21,8 @@
         <module>payment_microservice</module>
         <module>keyword_microservice</module>
         <module>service_discovery</module>
+        <module>authorization_service</module>
+        <module>resource_server</module>
     </modules>
 
     <build>
