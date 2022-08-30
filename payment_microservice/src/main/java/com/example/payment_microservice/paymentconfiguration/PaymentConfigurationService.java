@@ -55,7 +55,7 @@ public class PaymentConfigurationService {
 
 
             Flux<PaymentBase> paymentBaseFlux = paymentBaseRepository.findPaymentBasesByPaymentConfigurationId(paymentConfiguration.getId());
-
+            List<PaymentBaseDTO> paymentBaseDTOList = mapper.toBaseDTO(paymentBaseFlux);
 
             Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                     .get()
@@ -78,13 +78,7 @@ public class PaymentConfigurationService {
 
                     return PaymentConfigurationDTO.builder()
                             .id(paymentConfiguration.getId())
-                            .payments(paymentBase.stream().map(paymentBase1 -> {
-                                return PaymentBaseDTO.builder()
-                                        .id(paymentBase1.getId())
-                                        .type(paymentBase1.getType())
-                                        .active(paymentBase1.isActive())
-                                        .build();
-                            }).toList())
+                            .payments(paymentBaseDTOList)
                             .procurementMethodName(objects.getT1().getName())
                             .procurementNatureName(objects.getT2().getName())
                             .build();
