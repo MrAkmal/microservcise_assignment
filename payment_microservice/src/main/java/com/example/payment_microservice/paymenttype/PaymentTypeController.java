@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/payment_type")
+@RequestMapping("/v1/payment/payment_type")
 public class PaymentTypeController {
 
 
