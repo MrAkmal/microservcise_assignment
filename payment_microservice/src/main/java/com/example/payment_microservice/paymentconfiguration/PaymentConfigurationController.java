@@ -58,7 +58,8 @@ public class PaymentConfigurationController {
     }
 
     @PutMapping
-    public Mono<Void> update(@RequestBody PaymentConfigurationUpdateDTO dto) {
+    public Mono<PaymentConfiguration> update(@RequestBody PaymentConfigurationCreateDTO dto) {
+        System.out.println("dto = " + dto);
         return service.update(dto);
     }
 

@@ -1,22 +1,25 @@
 package com.example.payment_microservice.paymentconfiguration;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.payment_microservice.dto.TypeCreateDTO;
+import com.example.payment_microservice.payment.PaymentBaseCreateDTO;
+import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class PaymentConfigurationCreateDTO {
 
 
+    private int id;
 
     private int procurementNatureId;
 
     private int procurementMethodId;
 
-//    private List<TypeCreateDTO> types;
+    private List<PaymentBaseCreateDTO> types;
 
 }
