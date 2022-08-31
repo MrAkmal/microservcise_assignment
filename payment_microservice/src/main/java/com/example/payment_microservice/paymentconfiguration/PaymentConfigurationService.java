@@ -168,8 +168,25 @@ public class PaymentConfigurationService {
         Flux<PaymentBaseDTO> paymentBaseDTOFlux = paymentBaseService.saveAll(types);
         paymentBaseDTOFlux.subscribe(System.out::println);
 
+
+        Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
+                .get()
+                .uri(procurementMethodURI + "/{id}", dto.getProcurementMethodId())
+                .header(AUTHORIZATION, header)
+                .retrieve()
+                .bodyToMono(ProcurementMethodDTO.class);
+
+        Mono<ProcurementNatureDTO> procurementNatureMono = WebClient.builder().build()
+                .get()
+                .uri(procurementNatureURI + "/{id}", dto.getProcurementNatureId())
+                .header(AUTHORIZATION, header)
+                .retrieve()
+                .bodyToMono(ProcurementNatureDTO.class);
+
+
         return repository.findById(id)
                 .flatMap(paymentConfiguration -> {
+
                     paymentConfiguration.setProcurementMethodId(dto.getProcurementMethodId());
                     paymentConfiguration.setProcurementNatureId(dto.getProcurementNatureId());
                     return repository.save(paymentConfiguration);

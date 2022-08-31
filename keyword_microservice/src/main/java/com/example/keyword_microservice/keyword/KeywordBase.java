@@ -21,6 +21,7 @@ public class KeywordBase {
     private int id;
 
     @Column("generated_name")
+    //Generic todo
     private String generatedName;
 
     @Column("country")
