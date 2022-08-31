@@ -6,9 +6,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 public class ProcurementMethodService {
@@ -31,9 +38,11 @@ public class ProcurementMethodService {
     public Mono<ProcurementMethod> save(ProcurementMethodDTO procurementMethod) {
 
         int procurementNatureId = procurementMethod.getProcurementNatureId();
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
 
+        String authHeader = request.getHeader(AUTHORIZATION);
 
-        return getProcurementNature(procurementNatureId).flatMap(procurementNatureDTO ->
+        return getProcurementNature(procurementNatureId, authHeader).flatMap(procurementNatureDTO ->
                         repository.save(new ProcurementMethod(procurementMethod.getName(), procurementNatureDTO.getId())))
                 .switchIfEmpty(Mono.empty());
 
@@ -42,9 +51,13 @@ public class ProcurementMethodService {
 
     public Mono<ProcurementMethod> update(ProcurementMethodDTO method) {
 
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+
+        String authHeader = request.getHeader(AUTHORIZATION);
+
         int procurementNatureId = method.getProcurementNatureId();
 
-        Mono<ProcurementNatureDTO> procurementNature = getProcurementNature(procurementNatureId);
+        Mono<ProcurementNatureDTO> procurementNature = getProcurementNature(procurementNatureId, authHeader);
 
         return repository.findById(method.getId())
                 .flatMap(procurementMethod -> procurementNature.flatMap(
@@ -86,11 +99,16 @@ public class ProcurementMethodService {
 
     public Flux<ProcurementMethodResponse> getAllSort(String fieldName) {
 
+
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+
+        String authHeader = request.getHeader(AUTHORIZATION);
+
         Flux<ProcurementMethod> list = repository.findAll(Sort.by(Sort.Direction.ASC, fieldName));
 
         Flux<ProcurementMethodResponse> responseFlux =
                 list.flatMap(procurementMethod ->
-                        getProcurementNature(procurementMethod.getProcurementNatureId())
+                        getProcurementNature(procurementMethod.getProcurementNatureId(),authHeader)
                         .flatMap(procurementNatureDTO -> {
                             String procurementNatureName = procurementNatureDTO.getName();
                             return Mono.just(new ProcurementMethodResponse(
@@ -111,10 +129,13 @@ public class ProcurementMethodService {
     }
 
 
-    public Mono<ProcurementNatureDTO> getProcurementNature(int id) {
+    public Mono<ProcurementNatureDTO> getProcurementNature(int id, String authHeader) {
+
+
         return webClient.get()
                 .uri(procurementNatureBaseUrl + "/" + id)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(AUTHORIZATION,authHeader)
                 .retrieve()
                 .bodyToMono(ProcurementNatureDTO.class);
     }
