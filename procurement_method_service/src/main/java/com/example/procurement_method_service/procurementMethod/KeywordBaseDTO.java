@@ -1,10 +1,7 @@
-package com.example.keyword_microservice.keyword;
+package com.example.procurement_method_service.procurementMethod;
 
 
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
 @NoArgsConstructor

@@ -1,10 +1,7 @@
 package com.example.keyword_microservice.keyword;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -14,25 +11,26 @@ import org.springframework.data.relational.core.mapping.Table;
 @Setter
 @Getter
 @Table("keyword_base")
-public class KeywordBase {
+@Builder
+public class    KeywordBase {
 
     @Id
     @Column("id")
     private int id;
 
-    @Column("generated_name")
-    //Generic todo
-    private String generatedName;
+    @Column("generic_name")
+    //Generic
+    private String genericName;
 
-    @Column("country")
-    private String country;
+    @Column("country_id")
+    private int countryId;
 
-    @Column("country_wise_name")
-    private String countryWiseName;
+    @Column("wise_name")
+    private String wiseName;
 
-    public KeywordBase(String generatedName, String country, String countryWiseName) {
-        this.generatedName = generatedName;
-        this.country = country;
-        this.countryWiseName = countryWiseName;
+    public KeywordBase(String genericName, int countryId, String wiseName) {
+        this.genericName = genericName;
+        this.countryId = countryId;
+        this.wiseName = wiseName;
     }
 }

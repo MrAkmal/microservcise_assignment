@@ -21,13 +21,13 @@ public class KeywordBaseController {
 
 
     @PostMapping
-    public Mono<KeywordBase> save(@Valid @RequestBody KeywordBaseDTO dto) {
+    public Mono<KeywordBase> save(@Valid @RequestBody KeywordBaseCreateDTO dto) {
 
         return service.save(dto);
     }
 
     @PutMapping
-    public Mono<KeywordBase> update(@Valid @RequestBody KeywordBaseDTO dto) {
+    public Mono<KeywordBaseDTO> update(@Valid @RequestBody KeywordBaseUpdateDTO dto) {
         return service.update(dto);
     }
 
@@ -37,12 +37,12 @@ public class KeywordBaseController {
     }
 
     @GetMapping("/{keywordBaseId}")
-    public Mono<KeywordBase> get(@PathVariable Integer keywordBaseId) {
+    public Mono<KeywordBaseDTO> get(@PathVariable Integer keywordBaseId) {
         return service.get(keywordBaseId);
     }
 
     @GetMapping
-    public Flux<KeywordBase> getAll() {
+    public Flux<KeywordBaseDTO> getAll() {
         return service.getAll();
     }
 }

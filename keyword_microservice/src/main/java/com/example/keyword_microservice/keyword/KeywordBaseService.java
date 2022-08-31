@@ -1,5 +1,7 @@
 package com.example.keyword_microservice.keyword;
 
+import com.example.keyword_microservice.country.CountryBase;
+import com.example.keyword_microservice.country.CountryBaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,49 +12,53 @@ import reactor.core.publisher.Mono;
 public class KeywordBaseService {
 
     private final KeywordBaseRepository repository;
+    private final CountryBaseService countryBaseService;
+
+    private final KeywordBaseMapper mapper;
 
     @Autowired
-    public KeywordBaseService(KeywordBaseRepository repository) {
+    public KeywordBaseService(KeywordBaseRepository repository, CountryBaseService countryBaseService, KeywordBaseMapper mapper) {
         this.repository = repository;
+        this.countryBaseService = countryBaseService;
+        this.mapper = mapper;
     }
 
 
     @Transactional
-    public Mono<KeywordBase> save(KeywordBaseDTO dto) {
+    public Mono<KeywordBase> save(KeywordBaseCreateDTO dto) {
 
 
-        KeywordBase keywordBase = new KeywordBase(
-                dto.getCountry(),
-                dto.getCountry(),
-                dto.getCountryWiseName()
-        );
+        return countryBaseService.get(dto.getCountryId())
+                .flatMap(countryBase ->
+                        repository.checkKeywordNotExist(dto)
+                                .switchIfEmpty(
+                                        repository.save(mapper.fromDTO(dto)
+                                        )))
+                .switchIfEmpty(Mono.empty());
 
-        return repository.findByCountry(dto.getCountry())
-                .flatMap(Mono::just)
-                .switchIfEmpty(repository.save(keywordBase));
+
     }
 
     @Transactional
-    public Mono<KeywordBase> update(KeywordBaseDTO dto) {
+    public Mono<KeywordBaseDTO> update(KeywordBaseUpdateDTO dto) {
 
-        if (dto.getId() != 0) {
-            return repository.findById(dto.getId())
-                    .flatMap(keywordBase -> {
-                        keywordBase.setGeneratedName(dto.getCountry());
-                        keywordBase.setCountryWiseName(dto.getCountryWiseName());
-                        keywordBase.setCountry(dto.getCountry());
-                        if (!keywordBase.getCountry().equals(dto.getCountry())) {
-                            return repository.findByCountry(dto.getCountry())
-                                    .flatMap(Mono::just)
-                                    .switchIfEmpty(repository.save(keywordBase));
-                        } else {
-                            return repository.save(keywordBase);
-                        }
-                    })
-                    .switchIfEmpty(Mono.empty());
-        }
+        Mono<CountryBase> countryBaseMono = countryBaseService.get(dto.getCountryId());
 
-        return Mono.empty();
+        return countryBaseMono.flatMap(countryBase -> repository.findById(dto.getId())
+                .flatMap(keywordBase -> {
+
+                    Mono<KeywordBase> keywordBaseMono = repository.checkKeywordNotExist(
+                                    new KeywordBaseCreateDTO(dto.getGenericName(),
+                                            dto.getCountryId(), dto.getWiseName()))
+                            .switchIfEmpty(repository.save(mapper.fromUpdateDto(keywordBase, dto))
+                            );
+
+                    return keywordBaseMono.map(keywordBase1 -> mapper.toDTO(keywordBase1, ""));
+
+
+                })
+                .switchIfEmpty(Mono.empty())).switchIfEmpty(Mono.empty());
+
     }
 
     @Transactional
@@ -64,14 +70,21 @@ public class KeywordBaseService {
     }
 
     @Transactional
-    public Mono<KeywordBase> get(int id) {
+    public Mono<KeywordBaseDTO> get(int id) {
         return repository.findById(id)
+                .flatMap(keywordBase -> countryBaseService.get(keywordBase.getCountryId())
+                        .map(countryBase -> mapper.toDTO(keywordBase, countryBase.getName())))
                 .switchIfEmpty(Mono.empty());
     }
 
     @Transactional
-    public Flux<KeywordBase> getAll() {
-        return repository.findAll();
+    public Flux<KeywordBaseDTO> getAll() {
+
+
+        return repository.findAll()
+                .flatMap(keywordBase -> countryBaseService.get(keywordBase.getCountryId())
+                        .map(countryBase -> mapper.toDTO(keywordBase, countryBase.getName())))
+                .switchIfEmpty(Flux.empty());
     }
 
 }

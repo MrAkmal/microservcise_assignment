@@ -1,29 +1,28 @@
-package com.example.procurement_method_service.procurementMethod;
+package com.example.keyword_microservice.country;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "procurement_method")
 @Builder
-public class ProcurementMethod {
+@ToString
+@Table(name = "country_base")
+public class CountryBase {
+
 
     @Id
     @Column("id")
     private int id;
 
+    @Column("name")
+    private String name;
 
-    @Column("keyword_base_id")
-    private int keywordBaseId;
-
-
-    @Column("procurement_nature_id")
-    private int procurementNatureId;
+    @Column("code")
+    private String code;
 
 }
