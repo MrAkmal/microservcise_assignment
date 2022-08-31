@@ -2,7 +2,6 @@ package com.example.payment_microservice.paymentconfiguration;
 
 import com.example.payment_microservice.dto.ProcurementMethodDTO;
 import com.example.payment_microservice.dto.ProcurementNatureDTO;
-import com.example.payment_microservice.dto.TypeCreateDTO;
 import com.example.payment_microservice.payment.*;
 import com.example.payment_microservice.paymenttype.PaymentTypeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,12 +10,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 public class PaymentConfigurationService {
@@ -42,14 +47,19 @@ public class PaymentConfigurationService {
 
     public Flux<PaymentConfigurationDTO> getAll() {
 
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+
+        String header = request.getHeader(AUTHORIZATION);
+
+
         Flux<PaymentConfiguration> paymentConfigurationFlux = repository.findAll();
 
-        return paymentConfigurationFlux.flatMap(paymentConfiguration -> get(paymentConfiguration.getId()));
+        return paymentConfigurationFlux.flatMap(paymentConfiguration -> get(paymentConfiguration.getId(), header));
 
     }
 
 
-    public Mono<PaymentConfigurationDTO> get(Integer id) {
+    public Mono<PaymentConfigurationDTO> get(Integer id, String header) {
 
         Mono<PaymentConfiguration> paymentConfigurationMono = repository.findById(id);
 
@@ -73,21 +83,30 @@ public class PaymentConfigurationService {
             Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                     .get()
                     .uri(procurementMethodURI + "/{id}", paymentConfiguration.getProcurementMethodId())
+                    .header(AUTHORIZATION, header)
                     .retrieve()
                     .bodyToMono(ProcurementMethodDTO.class);
 
             Mono<ProcurementNatureDTO> procurementNatureMono = WebClient.builder().build()
                     .get()
                     .uri(procurementNatureURI + "/{id}", paymentConfiguration.getProcurementNatureId())
+                    .header(AUTHORIZATION, header)
                     .retrieve()
                     .bodyToMono(ProcurementNatureDTO.class);
 
             Mono<Tuple2<ProcurementMethodDTO, ProcurementNatureDTO>> zip = Mono.zip(procurementMethodMono, procurementNatureMono);
 
 
+
             return paymentBaseTypeDTOFlux.collectList().flatMap(paymentBase -> {
 
+                paymentBase.forEach(System.out::println);
+
                 return zip.map(objects -> {
+
+                    System.out.println("zip inside");
+                    System.out.println("objects.getT2() = " + objects.getT2());
+                    System.out.println("objects.getT1() = " + objects.getT1());
 
                     return PaymentConfigurationDTO.builder()
                             .id(paymentConfiguration.getId())
@@ -102,6 +121,7 @@ public class PaymentConfigurationService {
                             .procurementNatureName(objects.getT2().getName())
                             .build();
 
+
                 });
             });
 
@@ -112,17 +132,23 @@ public class PaymentConfigurationService {
 
 
     @Transactional
-    public Mono<PaymentConfigurationDTO> save(PaymentConfigurationCreateDTO dto) {
+    public Mono<PaymentConfigurationDTO> save(PaymentConfigurationCreateDTO dto,String header) {
+
+
+
+
 
         Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                 .get()
                 .uri(procurementMethodURI + "/{id}", dto.getProcurementMethodId())
+                .header(AUTHORIZATION, header)
                 .retrieve()
                 .bodyToMono(ProcurementMethodDTO.class);
 
         Mono<ProcurementNatureDTO> procurementNatureMono = WebClient.builder().build()
                 .get()
                 .uri(procurementNatureURI + "/{id}", dto.getProcurementNatureId())
+                .header(AUTHORIZATION, header)
                 .retrieve()
                 .bodyToMono(ProcurementNatureDTO.class);
 
@@ -137,7 +163,7 @@ public class PaymentConfigurationService {
         });
 
 
-        return paymentConfigurationMono.flatMap(paymentConfiguration -> get(paymentConfiguration.getId()));
+        return paymentConfigurationMono.flatMap(paymentConfiguration -> get(paymentConfiguration.getId(), header));
 
     }
 

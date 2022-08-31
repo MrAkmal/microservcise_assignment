@@ -1,13 +1,11 @@
 package com.example.payment_microservice.paymentconfiguration;
 
-import com.example.payment_microservice.dto.TypeCreateDTO;
 import com.example.payment_microservice.payment.PaymentBaseCreateDTO;
 import lombok.*;
 
-import java.util.List;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
