@@ -24,8 +24,8 @@ public class KeywordBaseController {
 
     @GetMapping
     public String getListPage(Model model, @RequestParam(required = false, defaultValue = "id") String fieldName) {
-        model.addAttribute("procurementNatures", service.getAll(fieldName));
-        return "procurement-nature";
+        model.addAttribute("keywordBases", service.getAll(fieldName));
+        return "keywordbase/keyword-base";
     }
 
     @GetMapping("/{id}")
@@ -35,15 +35,15 @@ public class KeywordBaseController {
 
     @GetMapping("/create")
     public String getCreatePage(Model model) {
-        model.addAttribute("procurementNature", new KeywordBase());
-        return "procurement-nature-form";
+        model.addAttribute("keywordBase", new KeywordBase());
+        return "keywordbase/keyword-base-form";
     }
 
     @GetMapping("/update/{id}")
     public String getUpdatePage(Model model, @PathVariable Integer id) {
         KeywordBase procurementNature = service.get(id);
-        model.addAttribute("procurementNature", procurementNature);
-        return "procurement-nature-form";
+        model.addAttribute("keywordBase", procurementNature);
+        return "keywordbase/keyword-base-form";
     }
 
     @PostMapping
@@ -53,13 +53,13 @@ public class KeywordBaseController {
         } else {
             service.save(procurementNature);
         }
-        return "redirect:/procurement-nature";
+        return "redirect:/keyword-base";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {
         service.delete(id);
-        return "redirect:/procurement-nature";
+        return "redirect:/keyword-base";
     }
 
 

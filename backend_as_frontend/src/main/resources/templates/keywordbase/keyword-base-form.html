@@ -6,17 +6,17 @@
 <div class="container" style="padding-top: 2rem">
     <div class="row">
         <div class="col-md-6 offset-3">
-            <form th:method="POST" th:action="@{/keyword-base}" th:object="${keywordbase}">
+            <form th:method="POST" th:action="@{/keyword-base}" th:object="${keywordBase}">
                 <input type="hidden" th:field="*{id}">
                 <div class="form-group">
                     <label for="countryName">Country Name</label>
-                    <input id="countryName" type="number" min="0" th:field="*{country}" class="form-control"
-                           placeholder="Enter GeneratedName"/>
+                    <input id="countryName" type="text" min="0" th:field="*{country}" class="form-control"
+                           placeholder="Enter country"/>
                 </div>
                 <div class="form-group">
                     <label for="countryWiseName">Country Wise Name</label>
-                    <input id="countryWiseName" type="number" min="0" th:field="*{countryWiseName}" class="form-control"
-                           placeholder="Enter GeneratedName"/>
+                    <input id="countryWiseName" type="text" min="0" th:field="*{countryWiseName}" class="form-control"
+                           placeholder="Enter Wise name"/>
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save</button>
                 <a th:href="@{/keyword-base}" class="btn btn-warning btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
