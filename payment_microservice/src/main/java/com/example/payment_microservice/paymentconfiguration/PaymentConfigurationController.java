@@ -37,20 +37,17 @@ public class PaymentConfigurationController {
     @GetMapping("/{id}")
     public Mono<PaymentConfigurationDTO> get(@PathVariable("id") Integer id) {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
 
-        String header = request.getHeader(AUTHORIZATION);
-
-        return service.get(id, header);
+        return service.get(id, authorizationHeader);
     }
 
 
     @PostMapping
     public Mono<PaymentConfigurationDTO> save(@RequestBody PaymentConfigurationCreateDTO dto) {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-
-        String header = request.getHeader(AUTHORIZATION);
-        return service.save(dto, header);
-
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        return service.save(dto,authorizationHeader);
     }
 
 
@@ -72,7 +69,9 @@ public class PaymentConfigurationController {
     @PutMapping
     public Mono<PaymentConfiguration> update(@RequestBody PaymentConfigurationCreateDTO dto) {
         System.out.println("dto = " + dto);
-        return service.update(dto);
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        return service.update(dto,authorizationHeader);
     }
 
 
