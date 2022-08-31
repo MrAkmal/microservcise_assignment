@@ -41,12 +41,6 @@ public class SecurityController {
     }
 
 
-    @GetMapping("/authorize")
-    public Boolean authorizeRequest() {
-        return true;
-    }
-
-
     @GetMapping("/login/oauth2/code/google")
     public String googleOauth2(OAuth2AuthenticationToken token) {
         System.out.println("token.getPrincipal() = " + token.getPrincipal());

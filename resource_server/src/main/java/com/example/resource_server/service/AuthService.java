@@ -5,6 +5,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.resource_server.dto.DataDTO;
+import com.example.resource_server.dto.RequestDTO;
 import com.example.resource_server.dto.ResetPasswordDTO;
 import com.example.resource_server.dto.SessionDTO;
 import com.example.resource_server.entity.User;
@@ -13,6 +15,11 @@ import com.example.resource_server.utils.JWTUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.client.RestTemplate;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -85,6 +93,20 @@ public class AuthService implements UserDetailsService {
                     .withClaim("roles", user.getAuthority())
                     .withIssuer(request.getRequestURI())
                     .sign(JWTUtils.getAlgorithm());
+
+            RestTemplate restTemplate = new RestTemplate();
+
+
+            List<String> authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+
+            HttpEntity<RequestDTO> entity = new HttpEntity<>(new RequestDTO(user.getUsername(), authorities, request.getRequestURI()), headers);
+
+            SessionDTO sessionDTO = restTemplate.exchange("http://localhost:7070/v1/authorization_server/generate-token",
+                    HttpMethod.POST, entity, SessionDTO.class).getBody();
 
 
             Map<String, String> tokens = new HashMap<>();
@@ -194,6 +216,7 @@ public class AuthService implements UserDetailsService {
                 .withClaim("email", user.getEmail())
                 .withExpiresAt(Date.from(LocalDateTime.now().plusMinutes(2).toInstant(ZoneOffset.UTC)))
                 .sign(Algorithm.HMAC256("dasdasdasdijo12489&*()!@casdkf_+/*-"));
+
 
         return "http://localhost:8080/reset-password?token=" + token;
     }
