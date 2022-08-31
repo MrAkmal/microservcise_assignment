@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+<nav th:replace="layouts/menu :: user-navbar"></nav>
+<div class="container" id="afterSubmit" style="display: block">
+    <div class="d-flex justify-content-center" style="padding-top: 10%;padding-bottom: 10%">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</div>
+<div class="container" id="currentContainer" style="display:none;padding-top: 2rem">
+    <div class="row">
+        <div class="col-md-6 offset-3">
+            <form id="formElem" th:object="${paymentConfiguration}">
+                <input th:field="*{id}" id="paymentConfigId" type="hidden"/>
+                <div class="form-group">
+                    <label for="procurementNatureId">Select Procurement Nature</label>
+                    <select class="form-control" id="procurementNatureId">
+                        <option th:each="nature : ${procurementNatures}" th:value="${nature.id}"
+                                th:selected="${nature.name==paymentConfiguration.procurementNatureName}"
+                                th:text="${nature.name}">
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="procurementMethodId">Select Procurement Method</label>
+                    <select class="form-control" id="procurementMethodId">
+                        <option th:each="method : ${procurementMethods}" th:value="${method.id}"
+                                th:selected="${method.name==paymentConfiguration.procurementMethodName}"
+                                th:text="${method.name}">
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group select_type_selector">
+                    <label for="selectTypeElement">Select Payment Type</label>
+                    <select id="selectTypeElement" class="form-control">
+                    </select>
+                </div>
+                <div class="form-group">
+                    <ul id="fieldItems" class="file-form__list list-group">
+                    </ul>
+                </div>
+
+                <button type="submit" id="buttonSave" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save
+                </button>
+                <a th:href="@{/payment-config}" class="btn btn-warning btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+    $(window).on("load", function () {
+        $('body').addClass('loaded');
+    });
+
+    window.addEventListener("load", startSelectListenerForPaymentType, false);
+
+    let paymentConfigurationPayments = [];
+    let paymentTypes = [];
+    const list = document.querySelector('.file-form__list');
+
+    displayPaymentTypeCurrentPaymentConfigId();
+
+    function displayPaymentTypeCurrentPaymentConfigId() {
+        getAllPaymentTypes();
+        let paymentConfigId = document.getElementById("paymentConfigId").value;
+        console.log("PaymentConfig : ", paymentConfigId);
+        fetch('/v1/payment_config_rest/' + paymentConfigId)
+            .then(response => response.json())
+            .then(data => {
+                    console.log(data);
+
+                    for (let i = 0; i < paymentTypes.length; i++) {
+                        for (let j = 0; j < data.payments.length; j++) {
+                            if (data.payments[j].paymentType === paymentTypes[i].type && data.payments[j].active === true)
+                                paymentConfigurationPayments.push({
+                                    id: paymentTypes[i].id,
+                                    type: data.payments[j].paymentType
+                                });
+                        }
+                    }
+
+                    console.log("Payment Config : ", paymentConfigurationPayments);
+                    displayData();
+                    for (let i = 0; i < paymentConfigurationPayments.length; i++) {
+                        displaySelectedPaymentType(paymentConfigurationPayments[i]);
+                    }
+                    document.getElementById("currentContainer").style.display = "block";
+                    document.getElementById("afterSubmit").style.display = "none";
+                }
+            );
+    }
+
+    function getAllPaymentTypes() {
+        fetch('/v1/payment_config_rest')
+            .then(response => response.json())
+            .then(data => {
+                    console.log(data);
+                    paymentTypes = data;
+                    console.log("PaymentTypes :", paymentTypes);
+                }
+            );
+    }
+
+    function displayData() {
+        let newData = paymentTypes.filter(ar =>
+            !paymentConfigurationPayments.find(rm => (rm.id === ar.id)))
+
+
+        let word = "Please Select";
+        let str = "<option>" + word + "</option>";
+        for (const item of newData) {
+            str += "<option value='" + item.id + "'>" + item.type + "</option>"
+        }
+        document.getElementById("selectTypeElement").innerHTML = str;
+    }
+
+    function displaySelectedPaymentType(data) {
+
+        console.log("selectedType:", data)
+        let selectedTypeObject = data;
+        console.log("selectedType:", selectedTypeObject)
+
+        let li = document.createElement('li');
+
+        li.classList.add("form-list__item", "list-group-item");
+        li.name = "fieldListItems";
+
+
+        let fileType = document.createElement('input');
+        fileType.classList.add("fieldDataType", "form-control-sm");
+        fileType.style.width = "70%";
+        fileType.value = selectedTypeObject.type;
+        fileType.readOnly = true;
+
+        let fileInput = document.createElement('input');
+        fileInput.classList.add("fieldName", "form-control-sm");
+        fileInput.setAttribute("type", "text");
+        fileInput.style.width = "10%";
+        fileInput.value = "True";
+        fileInput.readOnly = true;
+        fileInput.style.marginLeft = "1rem";
+
+
+        let removeEl = document.createElement('button');
+        removeEl.innerHTML = '<i class="fa fa-trash"></i>'
+        removeEl.classList.add("file__remove");
+        removeEl.classList.add("btn")
+        removeEl.style.marginLeft = "1rem";
+        removeEl.classList.add("btn-danger")
+        removeEl.classList.add("btn-sm")
+
+        removeEl.addEventListener("click", function () {
+            li.remove();
+            for (let i = 0; i < paymentConfigurationPayments.length; i++) {
+                if (paymentConfigurationPayments[i].id === selectedTypeObject.id) {
+                    paymentConfigurationPayments.splice(i, 1);
+                }
+            }
+            displayData();
+            console.log('remove btn');
+        });
+
+        li.append(fileType);
+        li.append(fileInput);
+        li.append(removeEl);
+        list.append(li);
+    }
+
+    function startSelectListenerForPaymentType() {
+        document.getElementById("selectTypeElement").addEventListener("change", addPaymentType);
+    }
+
+    function addPaymentType() {
+        console.log("event listener");
+        var selectedType = parseInt(document.getElementById("selectTypeElement").value);
+        console.log("selectedType:", selectedType)
+        var selectedTypeObject = null;
+
+        for (let i = 0; i < paymentTypes.length; i++) {
+            if (paymentTypes[i].id === selectedType) {
+                selectedTypeObject = paymentTypes[i];
+                paymentConfigurationPayments.push(selectedTypeObject);
+            }
+        }
+        console.log("Selected type ", selectedTypeObject);
+        displayData();
+
+        var li = document.createElement('li');
+
+        li.classList.add("form-list__item", "list-group-item");
+        li.name = "fieldListItems";
+
+
+        var fileType = document.createElement('input');
+        fileType.classList.add("fieldDataType", "form-control-sm");
+        fileType.style.width = "70%";
+        fileType.value = selectedTypeObject.type;
+        fileType.readOnly = true;
+
+
+        var fileInput = document.createElement('input');
+        fileInput.classList.add("fieldName", "form-control-sm");
+        fileInput.setAttribute("type", "text");
+        fileInput.style.width = "10%";
+        fileInput.value = "True";
+        fileInput.readOnly = true;
+        fileInput.style.marginLeft = "1rem";
+
+
+        var removeEl = document.createElement('button');
+        removeEl.innerHTML = '<i class="fa fa-trash"></i>'
+        removeEl.classList.add("file__remove");
+        removeEl.classList.add("btn")
+        removeEl.style.marginLeft = "1rem";
+        removeEl.classList.add("btn-danger")
+        removeEl.classList.add("btn-sm")
+
+        removeEl.addEventListener("click", function () {
+            li.remove();
+            for (let i = 0; i < paymentConfigurationPayments.length; i++) {
+                if (paymentConfigurationPayments[i].id === selectedTypeObject.id) {
+                    paymentConfigurationPayments.splice(i, 1);
+                }
+            }
+            displayData();
+            console.log('remove btn');
+        });
+
+        li.append(fileType);
+        li.append(fileInput);
+        li.append(removeEl);
+        list.append(li);
+    }
+
+    formElem.onsubmit = async (e) => {
+        $(window).on("load", function () {
+            $('body').addClass('loaded');
+        });
+
+        e.preventDefault();
+
+
+        document.getElementById("currentContainer").style.display = "none";
+        document.getElementById("afterSubmit").style.display = "block";
+
+        var listItems = document.getElementsByClassName("form-list__item");
+        var types = [];
+        var id = document.getElementById("paymentConfigId").value;
+        console.log(listItems.length);
+        for (let i = 0; i < paymentConfigurationPayments.length; i++) {
+            types.push({
+                paymentTypeId: paymentConfigurationPayments[i].id,
+                active: true,
+                paymentConfigurationId: id
+            })
+
+        }
+
+        var newData = paymentTypes.filter(ar =>
+            !paymentConfigurationPayments.find(rm => (rm.id === ar.id)))
+        console.log("UnSelected Data : ", newData);
+        for (let i = 0; i < newData.length; i++) {
+            types.push({
+                paymentTypeId: newData[i].id,
+                active: false,
+                paymentConfigurationId: id
+            })
+
+        }
+        const procurementNatureId = document.getElementById('procurementNatureId').value;
+        const procurementMethodId = document.getElementById('procurementMethodId').value;
+        const body = {id, procurementNatureId, procurementMethodId, types}
+        console.log(body);
+
+        await fetch('/v1/payment_config_rest', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body),
+            redirect: 'follow'
+        }).then(response => {
+            window.location.href = "/payment-config";
+        });
+    }
+
+</script>
+
+
+</body>
+</html>

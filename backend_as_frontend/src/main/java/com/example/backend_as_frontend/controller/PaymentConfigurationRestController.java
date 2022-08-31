@@ -45,5 +45,17 @@ public class PaymentConfigurationRestController {
     public List<PaymentConfigurationDTO> getAllPaymentConfig() {
         return paymentConfigurationService.getAll();
     }
+
+    @GetMapping("/{id}")
+    public PaymentConfigurationDTO getPaymentConfig(@PathVariable Integer id) {
+        return paymentConfigurationService.get(id);
+    }
+
+    @PutMapping
+    public ResponseEntity<Void> updatePaymentConfig(@RequestBody PaymentConfigCreateDTO paymentConfig) {
+        System.out.println("dto = " + paymentConfig);
+        paymentConfigurationService.update(paymentConfig);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
 

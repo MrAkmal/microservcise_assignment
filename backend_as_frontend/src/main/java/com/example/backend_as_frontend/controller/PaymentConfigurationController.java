@@ -1,5 +1,6 @@
 package com.example.backend_as_frontend.controller;
 
+import com.example.backend_as_frontend.dto.PaymentConfigurationDTO;
 import com.example.backend_as_frontend.entity.ProcurementMethod;
 import com.example.backend_as_frontend.entity.ProcurementNature;
 import com.example.backend_as_frontend.service.PaymentConfigurationService;
@@ -47,9 +48,19 @@ public class PaymentConfigurationController {
         List<ProcurementMethod> all = procurementMethodService.getAll();
         List<ProcurementNature> procurementNatureServiceAll = procurementNatureService.getAll();
         model.addAttribute("procurementMethods", all);
-        model.addAttribute("types", List.of("DOCUMENT", "FEE", "REGISTER", "PE"));
         model.addAttribute("procurementNatures", procurementNatureServiceAll);
         return "paymentconfig/payment-config-form";
+    }
+
+    @GetMapping("/update/{id}")
+    public String updateForm(Model model, @PathVariable Integer id) {
+        PaymentConfigurationDTO paymentConfigurationDTO = paymentConfigurationService.get(id);
+        List<ProcurementMethod> all = procurementMethodService.getAll();
+        List<ProcurementNature> procurementNatureServiceAll = procurementNatureService.getAll();
+        model.addAttribute("procurementMethods", all);
+        model.addAttribute("procurementNatures", procurementNatureServiceAll);
+        model.addAttribute("paymentConfiguration",paymentConfigurationDTO);
+        return "paymentconfig/payment-config-edit-form";
     }
 
 

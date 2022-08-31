@@ -1,6 +1,7 @@
 package com.example.backend_as_frontend.service;
 
 import com.example.backend_as_frontend.dto.*;
+import com.example.backend_as_frontend.entity.PaymentConfiguration;
 import com.example.backend_as_frontend.entity.PaymentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -78,5 +79,29 @@ public class PaymentConfigurationService {
                     .bodyToMono(Void.class);
             System.out.println("mono = " + mono.block());
         }
+    }
+
+    public PaymentConfigurationDTO get(Integer id) {
+        Mono<PaymentConfigurationDTO> entity = webClient.get()
+                .uri(baseURI + "/" + id)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(AUTHORIZATION, getToken())
+                .retrieve()
+                .bodyToMono(PaymentConfigurationDTO.class);
+
+        PaymentConfigurationDTO block = entity.block();
+        return block;
+    }
+
+    public void update(PaymentConfigCreateDTO paymentConfig) {
+        Mono<PaymentConfiguration> mono = webClient.put()
+                .uri(baseURI)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(AUTHORIZATION, getToken())
+                .body(Mono.just(paymentConfig), PaymentConfigCreateDTO.class)
+                .retrieve()
+                .bodyToMono(PaymentConfiguration.class);
+
+        System.out.println("mono.block() = " + mono.block());
     }
 }

@@ -2,8 +2,8 @@ package com.example.payment_microservice.paymentconfiguration;
 
 import com.example.payment_microservice.dto.ProcurementMethodDTO;
 import com.example.payment_microservice.dto.ProcurementNatureDTO;
+import com.example.payment_microservice.dto.TypeCreateDTO;
 import com.example.payment_microservice.payment.*;
-import com.example.payment_microservice.paymenttype.PaymentTypeCreateDTO;
 import com.example.payment_microservice.paymenttype.PaymentTypeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,6 +23,7 @@ public class PaymentConfigurationService {
 
     private final PaymentConfigurationRepository repository;
     private final PaymentBaseRepository paymentBaseRepository;
+    private final PaymentBaseService paymentBaseService;
 
     private final PaymentConfigurationMapper mapper;
 
@@ -31,10 +32,11 @@ public class PaymentConfigurationService {
     private final String procurementNatureURI = "http://localhost:1010/v1/procurement_nature";
 
     @Autowired
-    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper, PaymentTypeService paymentTypeService) {
+    public PaymentConfigurationService(PaymentConfigurationRepository repository, PaymentBaseRepository paymentBaseRepository, PaymentBaseService paymentBaseService, PaymentConfigurationMapper mapper, PaymentTypeService paymentTypeService, PaymentBaseService paymentBaseService1) {
         this.repository = repository;
         this.paymentBaseRepository = paymentBaseRepository;
         this.mapper = mapper;
+        this.paymentBaseService = paymentBaseService1;
     }
 
 
@@ -140,22 +142,36 @@ public class PaymentConfigurationService {
     }
 
 
-    public Mono<Void> update(PaymentConfigurationUpdateDTO dto) {
+    @Transactional
+    public Mono<PaymentConfiguration> update(PaymentConfigurationCreateDTO dto) {
 
-        Mono<PaymentConfiguration> paymentConfigurationMono = repository.findById(dto.getId())
-                .switchIfEmpty(Mono.empty())
-                .flatMap(paymentConfiguration -> repository.save(mapper.fromUpdateDTO(dto)));
+        List<PaymentBaseCreateDTO> types = dto.getTypes();
+        int id = dto.getId();
 
-        return Mono.empty();
+        Mono<Void> delete = deletePaymentTypes(id);
+        delete.subscribe(System.out::println);
 
+        Flux<PaymentBaseDTO> paymentBaseDTOFlux = paymentBaseService.saveAll(types);
+        paymentBaseDTOFlux.subscribe(System.out::println);
 
+        return repository.findById(id)
+                .flatMap(paymentConfiguration -> {
+                    paymentConfiguration.setProcurementMethodId(dto.getProcurementMethodId());
+                    paymentConfiguration.setProcurementNatureId(dto.getProcurementNatureId());
+                    return repository.save(paymentConfiguration);
+                }).switchIfEmpty(Mono.empty());
+
+    }
+
+    private Mono<Void> deletePaymentTypes(int id) {
+        return paymentBaseRepository.deleteByPaymentConfigId(id);
     }
 
 
     public Mono<Void> delete(Integer id) {
 
         Mono<Void> mono = paymentBaseRepository.deleteByPaymentConfigId(id);
-        mono.subscribe(a -> System.out.println(a));
+        mono.subscribe(System.out::println);
         return repository.deleteById(id);
     }
 }
