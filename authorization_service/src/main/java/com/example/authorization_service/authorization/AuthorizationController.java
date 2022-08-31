@@ -25,5 +25,10 @@ public class AuthorizationController {
         return ResponseEntity.ok(service.generateToken(dto));
     }
 
+    @PostMapping("/authorize")
+    public ResponseEntity<Boolean> authorize(@RequestBody String token) {
+        return ResponseEntity.ok(service.checkToken(token));
+    }
+
 
 }
