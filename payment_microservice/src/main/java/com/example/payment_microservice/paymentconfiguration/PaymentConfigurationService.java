@@ -126,7 +126,7 @@ public class PaymentConfigurationService {
 
 
     @Transactional
-    public Mono<PaymentConfigurationDTO> save(PaymentConfigurationCreateDTO dto,String authorizationHeader) {
+    public Mono<PaymentConfigurationDTO> save(PaymentConfigurationCreateDTO dto, String authorizationHeader) {
 
 
         Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
@@ -160,7 +160,7 @@ public class PaymentConfigurationService {
 
 
     @Transactional
-    public Mono<PaymentConfiguration> update(PaymentConfigurationCreateDTO dto,String header) {
+    public Mono<PaymentConfiguration> update(PaymentConfigurationCreateDTO dto, String header) {
 
         List<PaymentBaseCreateDTO> types = dto.getTypes();
         int id = dto.getId();
@@ -186,14 +186,16 @@ public class PaymentConfigurationService {
                 .retrieve()
                 .bodyToMono(ProcurementNatureDTO.class);
 
-
-        return repository.findById(id)
-                .flatMap(paymentConfiguration -> {
-
-                    paymentConfiguration.setProcurementMethodId(dto.getProcurementMethodId());
-                    paymentConfiguration.setProcurementNatureId(dto.getProcurementNatureId());
-                    return repository.save(paymentConfiguration);
-                }).switchIfEmpty(Mono.empty());
+        return procurementMethodMono.flatMap(
+                procurementMethodDTO -> procurementNatureMono.flatMap(procurementNatureDTO -> {
+                    return repository.findById(id)
+                            .flatMap(paymentConfiguration -> {
+                                paymentConfiguration.setProcurementMethodId(dto.getProcurementMethodId());
+                                paymentConfiguration.setProcurementNatureId(dto.getProcurementNatureId());
+                                return repository.save(paymentConfiguration);
+                            }).switchIfEmpty(Mono.empty());
+                })
+        );
 
     }
 
