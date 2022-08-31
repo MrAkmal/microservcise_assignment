@@ -4,10 +4,14 @@ package com.example.payment_microservice.payment;
 import com.example.payment_microservice.paymenttype.PaymentBaseTypeProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/payment/payment_base")
@@ -22,8 +26,11 @@ public class PaymentBaseController {
     }
 
 
+
+
     @GetMapping
     public Flux<PaymentBaseDTO> getAll() {
+
         return service.getAll();
     }
 
