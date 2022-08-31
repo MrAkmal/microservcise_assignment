@@ -11,12 +11,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 public class PaymentConfigurationService {
@@ -41,15 +48,17 @@ public class PaymentConfigurationService {
 
 
     public Flux<PaymentConfigurationDTO> getAll() {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
 
         Flux<PaymentConfiguration> paymentConfigurationFlux = repository.findAll();
 
-        return paymentConfigurationFlux.flatMap(paymentConfiguration -> get(paymentConfiguration.getId()));
+        return paymentConfigurationFlux.flatMap(paymentConfiguration -> get(paymentConfiguration.getId(), authorizationHeader));
 
     }
 
 
-    public Mono<PaymentConfigurationDTO> get(Integer id) {
+    public Mono<PaymentConfigurationDTO> get(Integer id, String header) {
 
         Mono<PaymentConfiguration> paymentConfigurationMono = repository.findById(id);
 
@@ -73,12 +82,14 @@ public class PaymentConfigurationService {
             Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                     .get()
                     .uri(procurementMethodURI + "/{id}", paymentConfiguration.getProcurementMethodId())
+                    .header(AUTHORIZATION, header)
                     .retrieve()
                     .bodyToMono(ProcurementMethodDTO.class);
 
             Mono<ProcurementNatureDTO> procurementNatureMono = WebClient.builder().build()
                     .get()
                     .uri(procurementNatureURI + "/{id}", paymentConfiguration.getProcurementNatureId())
+                    .header(AUTHORIZATION, header)
                     .retrieve()
                     .bodyToMono(ProcurementNatureDTO.class);
 
@@ -112,17 +123,20 @@ public class PaymentConfigurationService {
 
 
     @Transactional
-    public Mono<PaymentConfigurationDTO> save(PaymentConfigurationCreateDTO dto) {
+    public Mono<PaymentConfigurationDTO> save(PaymentConfigurationCreateDTO dto,String authorizationHeader) {
+
 
         Mono<ProcurementMethodDTO> procurementMethodMono = WebClient.builder().build()
                 .get()
                 .uri(procurementMethodURI + "/{id}", dto.getProcurementMethodId())
+                .header(AUTHORIZATION, authorizationHeader)
                 .retrieve()
                 .bodyToMono(ProcurementMethodDTO.class);
 
         Mono<ProcurementNatureDTO> procurementNatureMono = WebClient.builder().build()
                 .get()
                 .uri(procurementNatureURI + "/{id}", dto.getProcurementNatureId())
+                .header(AUTHORIZATION, authorizationHeader)
                 .retrieve()
                 .bodyToMono(ProcurementNatureDTO.class);
 
@@ -137,13 +151,13 @@ public class PaymentConfigurationService {
         });
 
 
-        return paymentConfigurationMono.flatMap(paymentConfiguration -> get(paymentConfiguration.getId()));
+        return paymentConfigurationMono.flatMap(paymentConfiguration -> get(paymentConfiguration.getId(), authorizationHeader));
 
     }
 
 
     @Transactional
-    public Mono<PaymentConfiguration> update(PaymentConfigurationCreateDTO dto) {
+    public Mono<PaymentConfiguration> update(PaymentConfigurationCreateDTO dto,String header) {
 
         List<PaymentBaseCreateDTO> types = dto.getTypes();
         int id = dto.getId();
