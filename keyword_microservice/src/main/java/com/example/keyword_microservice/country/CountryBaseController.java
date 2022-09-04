@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/v1/country_base_server")
+@RequestMapping("/v1/key_word_base/country_base_server")
 public class CountryBaseController {
     private final CountryBaseService service;
 
@@ -27,5 +27,10 @@ public class CountryBaseController {
     @GetMapping("/{id}")
     public Mono<CountryBase> get(@PathVariable Integer id) {
         return service.get(id);
+    }
+
+    @GetMapping("/name/{countryName}")
+    public Mono<CountryBase> getByName(@PathVariable String countryName) {
+        return service.getByName(countryName);
     }
 }

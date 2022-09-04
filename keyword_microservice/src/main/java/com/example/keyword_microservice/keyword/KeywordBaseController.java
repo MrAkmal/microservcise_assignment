@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/keyword_base_server")
+@RequestMapping("/v1/key_word_base/keyword_base_server")
 public class KeywordBaseController {
 
     private final KeywordBaseService service;

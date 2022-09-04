@@ -24,4 +24,7 @@ public class CountryBaseService {
         return repository.findById(id).switchIfEmpty(Mono.empty());
     }
 
+    public Mono<CountryBase> getByName(String countryName) {
+        return repository.findByName(countryName).switchIfEmpty(Mono.empty());
+    }
 }

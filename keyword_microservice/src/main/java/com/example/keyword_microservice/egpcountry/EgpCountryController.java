@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/v1/egp_country_server")
+@RequestMapping("/v1/key_word_base/egp_country_server")
 public class EgpCountryController {
 
     private final EgpCountryService service;
@@ -20,22 +20,27 @@ public class EgpCountryController {
 
 
     @GetMapping
-    public Flux<EgpCountryDTO> getAll(){
+    public Flux<EgpCountryDTO> getAll() {
         return service.getAll();
     }
 
+    @GetMapping("/{id}")
+    public Mono<EgpCountryDTO> get(@PathVariable Integer id) {
+        return service.get(id);
+    }
+
     @PostMapping
-    public Mono<EgpCountryDTO> save(@Valid @RequestBody EgpCountryCreateDTO dto){
+    public Mono<EgpCountryDTO> save(@Valid @RequestBody EgpCountryCreateDTO dto) {
         return service.save(dto);
     }
 
     @PutMapping
-    public Mono<EgpCountryDTO> save(@Valid @RequestBody EgpCountryUpdateDTO dto){
+    public Mono<EgpCountryDTO> save(@Valid @RequestBody EgpCountryUpdateDTO dto) {
         return service.update(dto);
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> delete(@PathVariable Integer id){
+    public Mono<Void> delete(@PathVariable Integer id) {
         return service.delete(id);
     }
 }
