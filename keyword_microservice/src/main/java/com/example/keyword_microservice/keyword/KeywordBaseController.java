@@ -41,6 +41,11 @@ public class KeywordBaseController {
         return service.get(keywordBaseId);
     }
 
+    @GetMapping("/keywordBase/{keywordBaseId}")
+    public Mono<KeywordBase> getKeywordBase(@PathVariable Integer keywordBaseId) {
+        return service.getKeywordBase(keywordBaseId);
+    }
+
     @GetMapping
     public Flux<KeywordBaseDTO> getAll() {
         return service.getAll();

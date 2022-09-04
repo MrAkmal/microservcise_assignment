@@ -1,6 +1,9 @@
 package com.example.backend_as_frontend.service;
 
+import com.example.backend_as_frontend.dto.KeywordBaseCreateDTO;
+import com.example.backend_as_frontend.dto.KeywordBaseUpdateDTO;
 import com.example.backend_as_frontend.entity.KeywordBase;
+import com.example.backend_as_frontend.entity.KeywordBaseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,7 @@ public class KeywordBaseService {
 
     private final WebClient webClient;
 
-    private final String baseURI = "http://localhost:9595/v1/keyword_base_server";
+    private final String baseURI = "http://localhost:9595/v1/key_word_base/keyword_base_server";
 
 
     public KeywordBaseService(WebClient webClient) {
@@ -40,10 +43,25 @@ public class KeywordBaseService {
 
     }
 
+    public KeywordBaseUpdateDTO getKeywordBase(Integer id) {
+
+        Mono<KeywordBaseEntity> entity = webClient.get()
+                .uri(baseURI + "/keywordBase/" + id)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(AUTHORIZATION, getToken())
+                .retrieve()
+                .bodyToMono(KeywordBaseEntity.class);
+
+        KeywordBaseEntity block = entity.block();
+        System.out.println("block = " + block);
+        return new KeywordBaseUpdateDTO(block.getId(), block.getGenericName(), block.getCountryId(), block.getWiseName());
+
+    }
+
     public List<KeywordBase> getAll() {
 
         Mono<List<KeywordBase>> entity = webClient.get()
-                .uri(baseURI + "/list")
+                .uri(baseURI)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(AUTHORIZATION, getToken())
                 .retrieve()
@@ -67,7 +85,7 @@ public class KeywordBaseService {
     }
 
 
-    public void save(KeywordBase nature) {
+    public void save(KeywordBaseCreateDTO nature) {
 
 
         Mono<KeywordBase> entity = webClient.post()
@@ -79,13 +97,10 @@ public class KeywordBaseService {
                 .bodyToMono(KeywordBase.class);
 
         System.out.println("entity.block() = " + entity.block());
-
-
     }
 
 
-    public void update(KeywordBase nature) {
-
+    public void update(KeywordBaseUpdateDTO nature) {
 
         Mono<KeywordBase> entity = webClient.put()
                 .uri(baseURI)

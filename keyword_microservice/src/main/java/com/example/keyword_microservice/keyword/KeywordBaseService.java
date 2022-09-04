@@ -87,4 +87,8 @@ public class KeywordBaseService {
                 .switchIfEmpty(Flux.empty());
     }
 
+    public Mono<KeywordBase> getKeywordBase(Integer keywordBaseId) {
+        return repository.findById(keywordBaseId)
+                .switchIfEmpty(Mono.empty());
+    }
 }

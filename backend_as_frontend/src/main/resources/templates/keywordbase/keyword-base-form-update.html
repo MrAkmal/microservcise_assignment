@@ -6,12 +6,13 @@
 <div class="container" style="padding-top: 2rem">
     <div class="row">
         <div class="col-md-6 offset-3">
-            <form th:method="POST" th:action="@{/keyword-base}" th:object="${keywordBase}">
+            <form th:method="POST" th:action="@{/keyword-base/update}" th:object="${keywordBase}">
+                <input type="hidden" th:field="*{id}">
                 <div class="form-group">
                     <label for="countryId">Select Country</label>
                     <select class="form-control" id="countryId" th:field="*{countryId}">
                         <option th:each="country : ${countries}" th:value="${country.id}"
-                                th:text="${country.name}">
+                                th:text="${country.name}" th:selected="${country.id==keywordBase.countryId}">
                         </option>
                     </select>
                 </div>

@@ -11,10 +11,10 @@ public class KeywordBase {
 
     private int id;
 
-    private String generatedName;
+    private String genericName;
 
     private String country;
 
-    private String countryWiseName;
+    private String wiseName;
 
 }
