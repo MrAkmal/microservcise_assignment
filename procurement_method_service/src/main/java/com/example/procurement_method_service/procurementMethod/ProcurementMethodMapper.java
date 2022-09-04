@@ -13,6 +13,14 @@ public class ProcurementMethodMapper {
                 .build();
     }
 
+    public ProcurementMethodUpdateDTO toUpdateDTO(ProcurementMethod procurementMethod) {
+        return ProcurementMethodUpdateDTO.builder()
+                .id(procurementMethod.getId())
+                .keywordBaseId(procurementMethod.getKeywordBaseId())
+                .procurementNatureId(procurementMethod.getProcurementNatureId())
+                .build();
+    }
+
     public ProcurementMethod fromCreateDTO(ProcurementMethodCreateDTO dto) {
         return ProcurementMethod.builder()
                 .procurementNatureId(dto.getProcurementNatureId())

@@ -29,7 +29,7 @@ public class ProcurementMethodService {
     @Value("${procurement_nature_base_url}")
     String procurementNatureBaseUrl;
 
-    private final String keywordBaseUrl = "";
+    private final String keywordBaseUrl = "http://localhost:6060/v1/key_word_base/keyword_base_server";
 
 
     @Autowired
@@ -50,9 +50,12 @@ public class ProcurementMethodService {
         Mono<ProcurementNatureDTO> procurementNature = getProcurementNature(procurementNatureId, authHeader);
         Mono<KeywordBaseDTO> keywordBase = getKeywordBase(dto.getKeywordBaseId(), authHeader);
 
-        return repository.findAllByProcurementNatureIdAndKeywordBaseId(dto.getProcurementNatureId(), dto.getKeywordBaseId())
-                .switchIfEmpty(procurementNature.flatMap(procurementNatureDTO -> keywordBase.flatMap(keywordBaseDTO ->
-                        repository.save(mapper.fromCreateDTO(dto)))).switchIfEmpty(Mono.empty()))
+        return repository
+                .findAllByProcurementNatureIdAndKeywordBaseId(dto.getProcurementNatureId(),
+                        dto.getKeywordBaseId())
+                .switchIfEmpty(procurementNature
+                        .flatMap(procurementNatureDTO -> keywordBase.flatMap(keywordBaseDTO ->
+                                repository.save(mapper.fromCreateDTO(dto)))).switchIfEmpty(Mono.empty()))
                 .flatMap(method -> Mono.empty());
 
 
@@ -140,7 +143,6 @@ public class ProcurementMethodService {
 
         return webClient.get()
                 .uri(procurementNatureBaseUrl + "/" + id)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(AUTHORIZATION, authHeader)
                 .retrieve()
                 .bodyToMono(ProcurementNatureDTO.class);
@@ -151,7 +153,6 @@ public class ProcurementMethodService {
 
         return webClient.get()
                 .uri(keywordBaseUrl + "/" + id)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(AUTHORIZATION, authHeader)
                 .retrieve()
                 .bodyToMono(KeywordBaseDTO.class);
@@ -161,6 +162,12 @@ public class ProcurementMethodService {
 
         return repository.updateByProcurementNatureId(procurementNatureId);
 //        return repository.deleteByProcurementNatureId(procurementNatureId);
+    }
+
+    public Mono<ProcurementMethodUpdateDTO> getById(Integer id) {
+        return repository.findById(id)
+                .map(mapper::toUpdateDTO)
+                .switchIfEmpty(Mono.empty());
     }
 
 }

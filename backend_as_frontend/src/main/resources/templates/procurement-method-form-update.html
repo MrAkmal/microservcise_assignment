@@ -6,12 +6,15 @@
 <div class="container" style="padding-top: 2rem">
     <div class="row">
         <div class="col-md-6 offset-3">
-            <form th:method="POST" th:action="@{/procurement-method}" th:object="${procurementMethod}">
+            <form th:method="POST" th:action="@{/procurement-method/update}" th:object="${procurementMethod}">
+                <input type="hidden" th:field="*{id}"/>
                 <div class="form-group">
+
                     <label for="keywordId">Select KeyWord</label>
                     <select class="form-control" id="keywordId" th:field="*{keywordBaseId}">
                         <option th:each="keword : ${keywordBases}" th:value="${keword.id}"
-                                th:text="|${keword.wiseName} - ${keword.genericName}|">
+                                th:text="|${keword.wiseName} - ${keword.genericName}|"
+                                th:selected="${keword.id==procurementMethod.keywordBaseId}">
                         </option>
                     </select>
                 </div>
@@ -19,7 +22,8 @@
                     <label for="procurementNatureId">Procurement Nature</label>
                     <select class="form-control" id="procurementNatureId" th:field="*{procurementNatureId}">
                         <option th:each="nature : ${procurementNatures}" th:value="${nature.id}"
-                                th:text="${nature.name}">
+                                th:text="${nature.name}"
+                                th:selected="${nature.id==procurementMethod.procurementNatureId}">
                         </option>
                     </select>
                 </div>

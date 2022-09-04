@@ -1,4 +1,5 @@
-package com.example.procurement_method_service.procurementMethod;
+package com.example.backend_as_frontend.dto;
+
 
 import lombok.*;
 
@@ -8,8 +9,7 @@ import lombok.*;
 @Getter
 @ToString
 @Builder
-public class ProcurementMethodUpdateDTO {
-    private int id;
+public class ProcurementMethodCreateDTO {
     private int keywordBaseId;
     private int procurementNatureId;
 }

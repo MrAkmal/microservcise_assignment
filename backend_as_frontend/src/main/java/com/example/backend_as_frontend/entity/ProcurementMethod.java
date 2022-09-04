@@ -13,7 +13,7 @@ public class ProcurementMethod {
 
     private int id;
 
-    private String name;
+    private int keywordBaseId;
 
     private int procurementNatureId;
 }

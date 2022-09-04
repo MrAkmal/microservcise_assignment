@@ -1,5 +1,6 @@
 package com.example.procurement_method_service.procurementMethod;
 
+import org.apache.tomcat.jni.Proc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -56,7 +57,7 @@ public class ProcurementMethodController {
 
         String authHeader = request.getHeader(AUTHORIZATION);
         System.out.println("id = " + id);
-        return service.get(id,authHeader);
+        return service.get(id, authHeader);
 
     }
 
@@ -76,6 +77,11 @@ public class ProcurementMethodController {
     public Mono<Void> deleteProcurementMethodByProcurementNatureId(@PathVariable Integer procurementNatureId) {
         System.out.println("procurementNatureId = " + procurementNatureId);
         return service.deleteProcurementMethodByProcurementNatureId(procurementNatureId);
+    }
+
+    @GetMapping("/procurement/{id}")
+    public Mono<ProcurementMethodUpdateDTO> getById(@PathVariable Integer id) {
+        return service.getById(id);
     }
 
 }

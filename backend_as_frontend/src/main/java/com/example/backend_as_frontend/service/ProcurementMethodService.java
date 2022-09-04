@@ -1,7 +1,9 @@
 package com.example.backend_as_frontend.service;
 
-import com.example.backend_as_frontend.entity.ProcurementMethod;
+import com.example.backend_as_frontend.dto.ProcurementMethodCreateDTO;
 import com.example.backend_as_frontend.dto.ProcurementMethodDTO;
+import com.example.backend_as_frontend.dto.ProcurementMethodUpdateDTO;
+import com.example.backend_as_frontend.entity.ProcurementMethod;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -9,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.example.backend_as_frontend.utils.Utils.getToken;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -76,8 +77,7 @@ public class ProcurementMethodService {
     }
 
 
-    public void save(ProcurementMethod nature) {
-
+    public void save(ProcurementMethodCreateDTO nature) {
 
         Mono<ProcurementMethod> entity = webClient.post()
                 .uri(baseURI)
@@ -93,7 +93,7 @@ public class ProcurementMethodService {
     }
 
 
-    public void update(ProcurementMethod nature) {
+    public void update(ProcurementMethodUpdateDTO nature) {
 
 
         Mono<ProcurementMethod> entity = webClient.put()
@@ -122,5 +122,17 @@ public class ProcurementMethodService {
 
         System.out.println("entity.block() = " + entity.block());
 
+    }
+
+    public ProcurementMethodUpdateDTO getById(Integer id) {
+
+        Mono<ProcurementMethodUpdateDTO> mono = webClient.get()
+                .uri(baseURI + "/procurement/" + id)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(AUTHORIZATION, getToken())
+                .retrieve()
+                .bodyToMono(ProcurementMethodUpdateDTO.class);
+
+        return mono.block();
     }
 }

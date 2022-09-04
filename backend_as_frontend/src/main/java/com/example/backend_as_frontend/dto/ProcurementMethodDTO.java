@@ -11,9 +11,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ProcurementMethodDTO {
+
     private int id;
 
-    private String name;
+    private String wiseName;
 
-    private String procurementNatureName;
+    private String procurementNature;
+
 }
