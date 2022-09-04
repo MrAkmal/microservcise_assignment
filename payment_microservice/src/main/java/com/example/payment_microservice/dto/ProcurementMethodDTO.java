@@ -11,9 +11,7 @@ public class ProcurementMethodDTO {
 
     private int id;
 
+    private String wiseName;
 
-    private String name;
-
-
-    private int procurementNatureId;
+    private String procurementNature;
 }

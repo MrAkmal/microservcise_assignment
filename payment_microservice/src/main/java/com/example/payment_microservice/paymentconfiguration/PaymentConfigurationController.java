@@ -60,7 +60,7 @@ public class PaymentConfigurationController {
                 .bodyToMono(ProcurementMethodDTO.class);
 
         procurementMethodMono.subscribe(procurementMethodDTO -> {
-            System.out.println("procurementMethodDTO.getName() = " + procurementMethodDTO.getName());
+            System.out.println("procurementMethodDTO.getName() = " + procurementMethodDTO.getWiseName());
         });
 
         return "ishladi";
