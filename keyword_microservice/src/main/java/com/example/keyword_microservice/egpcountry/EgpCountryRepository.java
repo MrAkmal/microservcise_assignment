@@ -8,4 +8,8 @@ public interface EgpCountryRepository extends ReactiveCrudRepository<EgpCountry,
 
     @Query("select * from egp_country where is_default = :check")
     Mono<EgpCountry> findByDefault(boolean check);
+
+    @Query("select * from egp_country where country_id = :countryId ")
+    Mono<EgpCountry> findByCountryId(int countryId);
+
 }
