@@ -28,5 +28,9 @@ public interface ProcurementMethodRepository extends R2dbcRepository<Procurement
     @Query("update procurement_method set procurement_nature_id=0 where procurement_nature_id = :procurementNatureId ")
     Mono<Void> updateByProcurementNatureId(int procurementNatureId);
 
+    Mono<ProcurementMethod> findAllByProcurementNatureIdAndKeywordBaseId(Integer procurementNatureId, Integer keywordBaseId);
+
+
+
 
 }

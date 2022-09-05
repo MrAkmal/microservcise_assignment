@@ -1,0 +1,36 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/head :: user-head">
+</head>
+<body>
+<nav th:replace="layouts/menu :: user-navbar"></nav>
+<div class="container" style="padding-top: 2rem">
+    <div class="row">
+        <div class="col-md-6 offset-3">
+            <form th:method="POST" th:action="@{/keyword-base/update}" th:object="${keywordBase}">
+                <input type="hidden" th:field="*{id}">
+                <div class="form-group">
+                    <label for="countryId">Select Country</label>
+                    <select class="form-control" id="countryId" th:field="*{countryId}">
+                        <option th:each="country : ${countries}" th:value="${country.id}"
+                                th:text="${country.name}" th:selected="${country.id==keywordBase.countryId}">
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="genericName">Generic Name</label>
+                    <input id="genericName" type="text" min="0" th:field="*{genericName}" class="form-control"
+                           placeholder="Enter Wise name"/>
+                </div>
+                <div class="form-group">
+                    <label for="wiseName">Wise Name</label>
+                    <input id="wiseName" type="text" min="0" th:field="*{wiseName}" class="form-control"
+                           placeholder="Enter Wise name"/>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save</button>
+                <a th:href="@{/keyword-base}" class="btn btn-warning btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

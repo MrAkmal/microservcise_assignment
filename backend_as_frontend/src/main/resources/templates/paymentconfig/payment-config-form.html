@@ -32,7 +32,7 @@
                     <label for="procurementMethodId">Select Procurement Method</label>
                     <select class="form-control" id="procurementMethodId">
                         <option th:each="method : ${procurementMethods}" th:value="${method.id}"
-                                th:text="${method.name}">
+                                th:text="${method.wiseName}">
                         </option>
                     </select>
                 </div>

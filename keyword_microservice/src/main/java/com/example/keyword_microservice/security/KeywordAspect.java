@@ -2,6 +2,7 @@ package com.example.keyword_microservice.security;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,8 +23,24 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class KeywordAspect {
 
 
+    @Pointcut("execution(* com.example.keyword_microservice.keyword.KeywordBaseController.*(..))")
+    private void forKeyWordBase() {
+    }
 
-    @Before("execution( * com.example.keyword_microservice.keyword.KeywordBaseController.*(..))")
+    @Pointcut("execution(* com.example.keyword_microservice.country.CountryBaseController.*(..))")
+    private void forCountryBase() {
+    }
+
+    @Pointcut("execution(* com.example.keyword_microservice.egpcountry.EgpCountryController.*(..))")
+    private void forEgpCountry() {
+    }
+
+    @Pointcut("forCountryBase() || forEgpCountry() || forKeyWordBase()")
+    private void forFlow() {
+    }
+
+
+    @Before("forFlow()")
     public void beforeAll() {
 
         RestTemplate restTemplate = new RestTemplate();

@@ -1,9 +1,6 @@
 package com.example.procurement_method_service.procurementMethod;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -14,6 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "procurement_method")
+@Builder
 public class ProcurementMethod {
 
     @Id
@@ -21,15 +19,11 @@ public class ProcurementMethod {
     private int id;
 
 
-    @Column("name")
-    private String name;
+    @Column("keyword_base_id")
+    private int keywordBaseId;
 
 
     @Column("procurement_nature_id")
     private int procurementNatureId;
 
-    public ProcurementMethod(String name, int procurementNatureId) {
-        this.name = name;
-        this.procurementNatureId = procurementNatureId;
-    }
 }

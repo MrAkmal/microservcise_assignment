@@ -1,0 +1,43 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/head :: user-head">
+</head>
+<body>
+<nav th:replace="layouts/menu :: user-navbar"></nav>
+<div class="container" style="padding-top: 2rem">
+    <div class="row">
+        <div class="col-md-12">
+            <h4><button class="btn btn-primary btn-sm" disabled><i
+                    class="fa fa-plus"></i> Add</button>
+            </h4>
+            <br>
+            <table class="table table-bordered table-striped" style="text-align: center">
+                <thead style="background-color: #04C3FC;">
+                <tr>
+                    <th scope="col" style="border-bottom: 2px solid #f00;">#</th>
+                    <th scope="col" style="border-bottom: 2px solid #f00;">Name</th>
+                    <th scope="col" style="border-bottom: 2px solid #f00;">Code</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="country,loop : ${countries}">
+                    <th scope="row" th:text="${loop.count}"></th>
+                    <td th:text="${country.name}"></td>
+                    <td th:text="${country.code}"></td>
+                </tr>
+                </tbody>
+                <thead style="background-color: #08A51F;border-top-color: red;">
+                <tr style="padding: 2rem">
+                    <th scope="col" style=" border-top: 2px solid #f00;
+            padding: 1.26rem"></th>
+                    <th scope="col" style=" border-top: 2px solid #f00;
+            padding: 1.26rem"></th>
+                    <th scope="col" style=" border-top: 2px solid #f00;
+            padding: 1.26rem"></th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

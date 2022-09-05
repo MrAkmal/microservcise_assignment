@@ -1,0 +1,30 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/head :: user-head">
+</head>
+<body>
+<nav th:replace="layouts/menu :: user-navbar"></nav>
+<div class="container" style="padding-top: 2rem">
+    <div class="row">
+        <div class="col-md-6 offset-3">
+            <form th:method="POST" th:action="@{/egp-country}" th:object="${egpCountryCreateDTO}">
+
+                <div class="form-group">
+                    <label for="countryId">Select Country</label>
+                    <select class="form-control" id="countryId" th:field="*{countryId}">
+                        <option th:each="country : ${countries}" th:value="${country.id}"
+                                th:text="${country.name}">
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="isDefault">isDefault</label>
+                    <input type="checkbox" id="isDefault" th:field="*{default}"/>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save</button>
+                <a th:href="@{/egp-country}" class="btn btn-warning btn-sm"><i class="fa fa-arrow-left"></i> Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

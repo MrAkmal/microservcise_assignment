@@ -1,11 +1,18 @@
 package com.example.procurement_method_service.procurementMethod;
 
+import org.apache.tomcat.jni.Proc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Objects;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
 @RequestMapping("/v1/procurement_method")
@@ -21,17 +28,17 @@ public class ProcurementMethodController {
 
 
     @PostMapping
-    public Mono<ProcurementMethod> save(@Valid @RequestBody ProcurementMethodDTO procurementMethod) {
-        System.out.println("method.getName() = " + procurementMethod.getName());
+    public Mono<ProcurementMethod> save(@Valid @RequestBody ProcurementMethodCreateDTO dto) {
+        System.out.println("method.getName() = " + dto);
 
-        return service.save(procurementMethod);
+        return service.save(dto);
     }
 
 
     @PutMapping
-    public Mono<ProcurementMethod> update(@Valid @RequestBody ProcurementMethodDTO method) {
-        System.out.println("method.getName() = " + method.getName());
-        return service.update(method);
+    public Mono<ProcurementMethodDTO> update(@Valid @RequestBody ProcurementMethodUpdateDTO dto) {
+        System.out.println("dto = " + dto);
+        return service.update(dto);
 
     }
 
@@ -45,10 +52,12 @@ public class ProcurementMethodController {
 
 
     @GetMapping("/{id}")
-    public Mono<ProcurementMethod> get(@PathVariable Integer id) {
+    public Mono<ProcurementMethodDTO> get(@PathVariable Integer id) {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
 
+        String authHeader = request.getHeader(AUTHORIZATION);
         System.out.println("id = " + id);
-        return service.get(id);
+        return service.get(id, authHeader);
 
     }
 
@@ -60,8 +69,7 @@ public class ProcurementMethodController {
 
 
     @GetMapping
-    public Flux<ProcurementMethodResponse> getAllSort(@RequestParam(required = false, defaultValue = "id") String fieldName) {
-
+    public Flux<ProcurementMethodDTO> getAllSort(@RequestParam(required = false, defaultValue = "id") String fieldName) {
         return service.getAllSort(fieldName);
     }
 
@@ -69,6 +77,11 @@ public class ProcurementMethodController {
     public Mono<Void> deleteProcurementMethodByProcurementNatureId(@PathVariable Integer procurementNatureId) {
         System.out.println("procurementNatureId = " + procurementNatureId);
         return service.deleteProcurementMethodByProcurementNatureId(procurementNatureId);
+    }
+
+    @GetMapping("/procurement/{id}")
+    public Mono<ProcurementMethodUpdateDTO> getById(@PathVariable Integer id) {
+        return service.getById(id);
     }
 
 }

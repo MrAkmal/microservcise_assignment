@@ -112,7 +112,7 @@ public class PaymentConfigurationService {
                                         .active(paymentBase1.isActive())
                                         .build();
                             }).toList())
-                            .procurementMethodName(objects.getT1().getName())
+                            .procurementMethodName(objects.getT1().getWiseName())
                             .procurementNatureName(objects.getT2().getName())
                             .build();
 
@@ -144,7 +144,8 @@ public class PaymentConfigurationService {
                 .bodyToMono(ProcurementNatureDTO.class);
 
 
-        Mono<PaymentConfiguration> paymentConfigurationMono = procurementMethodMono.flatMap(procurementMethodDTO -> {
+        Mono<PaymentConfiguration> paymentConfigurationMono = procurementMethodMono
+                .flatMap(procurementMethodDTO -> {
 
             return procurementNatureMono.flatMap(procurementNatureDTO -> {
 

@@ -11,15 +11,13 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Getter
 @ToString
+@Builder
 public class ProcurementMethodDTO {
 
     private int id;
 
-    @NotNull(message = " name is required")
-    @Length(min = 2, max = 60)
-    private String name;
+    private String wiseName;
 
-    @NotNull(message = " procurementNature is required")
-    private int procurementNatureId;
+    private String procurementNature;
 
 }

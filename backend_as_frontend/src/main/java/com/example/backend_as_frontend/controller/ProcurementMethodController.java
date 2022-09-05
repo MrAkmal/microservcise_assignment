@@ -1,7 +1,9 @@
 package com.example.backend_as_frontend.controller;
 
+import com.example.backend_as_frontend.dto.ProcurementMethodCreateDTO;
+import com.example.backend_as_frontend.dto.ProcurementMethodUpdateDTO;
 import com.example.backend_as_frontend.entity.ProcurementMethod;
-import com.example.backend_as_frontend.entity.ProcurementNature;
+import com.example.backend_as_frontend.service.KeywordBaseService;
 import com.example.backend_as_frontend.service.ProcurementMethodService;
 import com.example.backend_as_frontend.service.ProcurementNatureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,13 @@ public class ProcurementMethodController {
     private final ProcurementMethodService service;
     private final ProcurementNatureService procurementNatureService;
 
+    private final KeywordBaseService keywordBaseService;
 
     @Autowired
-    public ProcurementMethodController(ProcurementMethodService service, ProcurementNatureService procurementNatureService) {
+    public ProcurementMethodController(ProcurementMethodService service, ProcurementNatureService procurementNatureService, KeywordBaseService keywordBaseService) {
         this.service = service;
         this.procurementNatureService = procurementNatureService;
+        this.keywordBaseService = keywordBaseService;
     }
 
 
@@ -39,28 +43,31 @@ public class ProcurementMethodController {
     @GetMapping("/create")
     public String getCreatePage(Model model) {
         model.addAttribute("procurementNatures", procurementNatureService.getAll());
-        model.addAttribute("procurementMethod", new ProcurementMethod());
+        model.addAttribute("keywordBases",keywordBaseService.getAll());
+        model.addAttribute("procurementMethod", new ProcurementMethodCreateDTO());
         return "procurement-method-form";
     }
 
     @GetMapping("/update/{id}")
     public String getUpdatePage(Model model, @PathVariable Integer id) {
-        ProcurementMethod procurementMethod = service.get(id);
+        ProcurementMethodUpdateDTO procurementMethod = service.getById(id);
         model.addAttribute("procurementNatures", procurementNatureService.getAll());
         model.addAttribute("procurementMethod", procurementMethod);
-        return "procurement-method-form";
+        model.addAttribute("keywordBases",keywordBaseService.getAll());
+        return "procurement-method-form-update";
     }
 
     @PostMapping
-    public String save(ProcurementMethod procurementMethod) {
-        if (procurementMethod.getId() != 0) {
-            service.update(procurementMethod);
-        } else {
-            service.save(procurementMethod);
-        }
+    public String save(ProcurementMethodCreateDTO procurementMethod) {
+        service.save(procurementMethod);
         return "redirect:/procurement-method";
     }
 
+    @PostMapping("/update")
+    public String update(ProcurementMethodUpdateDTO procurementMethod) {
+        service.update(procurementMethod);
+        return "redirect:/procurement-method";
+    }
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {
         service.delete(id);
