@@ -130,4 +130,15 @@ public class KeywordBaseService {
 
     }
 
+    public String getWiseName() {
+
+        Mono<String> wiseName = webClient.get()
+                .uri(baseURI + "/wise_name")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(AUTHORIZATION, getToken())
+                .retrieve()
+                .bodyToMono(String.class);
+
+        return wiseName.block();
+    }
 }

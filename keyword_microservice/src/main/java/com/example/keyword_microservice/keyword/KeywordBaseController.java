@@ -50,4 +50,11 @@ public class KeywordBaseController {
     public Flux<KeywordBaseDTO> getAll() {
         return service.getAll();
     }
+
+
+    @GetMapping("/wise_name")
+    public Mono<String> getWiseName(){
+        return service.getWiseName();
+    }
+
 }

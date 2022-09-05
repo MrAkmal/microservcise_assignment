@@ -114,5 +114,12 @@ public class EgpCountryService {
                 .switchIfEmpty(Mono.empty());
 
     }
+
+    public Mono<Integer> getDefaultCountryId() {
+
+        return repository.findByDefault(true)
+                .map(EgpCountry::getCountryId)
+                .switchIfEmpty(Mono.empty());
+    }
 }
 

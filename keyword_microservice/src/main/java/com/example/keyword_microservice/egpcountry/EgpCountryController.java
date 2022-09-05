@@ -43,4 +43,13 @@ public class EgpCountryController {
     public Mono<Void> delete(@PathVariable Integer id) {
         return service.delete(id);
     }
+
+
+
+    @GetMapping("/default_country_id")
+    public Mono<Integer> getDefaultCountryId(){
+        return service.getDefaultCountryId();
+    }
+
+
 }

@@ -2,6 +2,7 @@ package com.example.keyword_microservice.keyword;
 
 import com.example.keyword_microservice.country.CountryBase;
 import com.example.keyword_microservice.country.CountryBaseService;
+import com.example.keyword_microservice.egpcountry.EgpCountryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,13 +14,16 @@ public class KeywordBaseService {
 
     private final KeywordBaseRepository repository;
     private final CountryBaseService countryBaseService;
+    private final EgpCountryService egpCountryService;
 
     private final KeywordBaseMapper mapper;
 
+
     @Autowired
-    public KeywordBaseService(KeywordBaseRepository repository, CountryBaseService countryBaseService, KeywordBaseMapper mapper) {
+    public KeywordBaseService(KeywordBaseRepository repository, CountryBaseService countryBaseService, EgpCountryService egpCountryService, KeywordBaseMapper mapper) {
         this.repository = repository;
         this.countryBaseService = countryBaseService;
+        this.egpCountryService = egpCountryService;
         this.mapper = mapper;
     }
 
@@ -90,5 +94,13 @@ public class KeywordBaseService {
     public Mono<KeywordBase> getKeywordBase(Integer keywordBaseId) {
         return repository.findById(keywordBaseId)
                 .switchIfEmpty(Mono.empty());
+    }
+
+    public Mono<String> getWiseName() {
+
+        return egpCountryService.getDefaultCountryId()
+                .flatMap(defaultCountryId -> repository.findByCountryId(defaultCountryId)
+                        .map(KeywordBase::getWiseName));
+
     }
 }
