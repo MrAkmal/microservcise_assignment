@@ -1,4 +1,4 @@
-package com.example.backend_as_frontend.controller;
+package com.example.backend_as_frontend.controller.auth;
 
 import com.example.backend_as_frontend.dto.LoginDTO;
 import com.example.backend_as_frontend.dto.ResetPasswordDTO;

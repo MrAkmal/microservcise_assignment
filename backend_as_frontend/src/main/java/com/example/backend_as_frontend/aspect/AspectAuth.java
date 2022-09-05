@@ -18,26 +18,30 @@ import java.util.Objects;
 public class AspectAuth {
 
 
-    @Pointcut("execution(* com.example.backend_as_frontend.controller.FinancialYearController.*(..))")
-    public void forFinancialController() {
+//    @Pointcut("execution(* com.example.backend_as_frontend.controller.FinancialYearController.*(..))")
+//    public void forFinancialController() {
+//    }
+//
+//    @Pointcut("execution(* com.example.backend_as_frontend.controller.HomeController.*(..))")
+//    public void forHomeController() {
+//    }
+//
+//
+//    @Pointcut("execution(* com.example.backend_as_frontend.controller.ProcurementMethodController.*(..))")
+//    public void forProcurementMethod() {
+//    }
+//
+//    @Pointcut("execution(* com.example.backend_as_frontend.controller.ProcurementNatureController.*(..))")
+//    public void forProcurementNature() {
+//    }
+
+    @Pointcut("execution(* com.example.backend_as_frontend.controller.*.*(..))")
+    public void forApp() {
     }
 
-    @Pointcut("execution(* com.example.backend_as_frontend.controller.HomeController.*(..))")
-    public void forHomeController() {
-    }
 
-
-    @Pointcut("execution(* com.example.backend_as_frontend.controller.ProcurementMethodController.*(..))")
-    public void forProcurementMethod() {
-    }
-
-    @Pointcut("execution(* com.example.backend_as_frontend.controller.ProcurementNatureController.*(..))")
-    public void forProcurementNature() {
-    }
-
-    @Before("forHomeController() || forFinancialController() || forProcurementMethod() || forProcurementNature())")
+    @Before("forApp()")
     public String check() {
-
 
 
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
@@ -46,7 +50,7 @@ public class AspectAuth {
 //        if (Objects.isNull(cookies)) return "redirect:/login";
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("ACCESSTOKEN") && cookie.getValue().length()>0) {
+                if (cookie.getName().equals("ACCESSTOKEN") && cookie.getValue().length() > 0) {
                     System.out.println("cookie.getValue() = " + cookie.getValue());
                     System.out.println("request.getRequestURI() = " + request.getRequestURI());
                     return request.getRequestURI();
