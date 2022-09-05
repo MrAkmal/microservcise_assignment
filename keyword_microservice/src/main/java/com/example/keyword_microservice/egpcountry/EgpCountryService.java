@@ -52,16 +52,23 @@ public class EgpCountryService {
         Mono<CountryBase> countryBaseMono = countryBaseService.get(countryId);
         EgpCountry egpCountry = new EgpCountry(dto.isDefault(), dto.getCountryId());
 
+        Mono<EgpCountry> egpCountryMono;
+
         if (dto.isDefault()) {
-            return repository.findByDefault(dto.isDefault())
-                    .switchIfEmpty(repository.save(egpCountry))
-                    .flatMap(egpCountry1 -> {
-                        return Mono.empty();
-                    });
+            egpCountryMono = repository
+                    .findByCountryId(dto.getCountryId())
+                    .switchIfEmpty(
+                            repository.findByDefault(dto.isDefault())
+                                    .switchIfEmpty(repository.save(egpCountry))
+                                    .flatMap(egpCountry1 -> Mono.empty())
+                    );
+        } else {
+            egpCountryMono = repository
+                    .findByCountryId(dto.getCountryId())
+                    .switchIfEmpty(repository.save(egpCountry));
         }
 
-        return repository.save(egpCountry)
-                .flatMap(egpCountry1 ->
+        return egpCountryMono.flatMap(egpCountry1 ->
                         countryBaseMono.map(countryBase -> EgpCountryDTO
                                 .builder()
                                 .id(egpCountry.getId())
@@ -82,20 +89,44 @@ public class EgpCountryService {
 
             egpCountryMono = byDefault
                     .switchIfEmpty(
-                            repository.findById(dto.getId()).flatMap(egpCountry -> countryBaseMono.flatMap(countryBase -> {
-                                        egpCountry.setCountryId(dto.getCountryId());
-                                        egpCountry.setDefault(dto.isDefault());
-                                        return repository.save(egpCountry);
-                                    })
-                                    .switchIfEmpty(Mono.empty())));
+                            repository.findById(dto.getId()).flatMap(
+                                    egpCountry ->
+                                    {
+                                        if (egpCountry.getId() != dto.getCountryId()) {
+                                            return repository.findByCountryId(dto.getCountryId())
+                                                    .switchIfEmpty(countryBaseMono.flatMap(countryBase -> {
+                                                        egpCountry.setCountryId(dto.getCountryId());
+                                                        egpCountry.setDefault(dto.isDefault());
+                                                        return repository.save(egpCountry);
+                                                    }));
+                                        } else {
+                                            return countryBaseMono.flatMap(countryBase -> {
+                                                egpCountry.setCountryId(dto.getCountryId());
+                                                egpCountry.setDefault(dto.isDefault());
+                                                return repository.save(egpCountry);
+                                            });
+                                        }
+                                    }));
         } else {
 
             egpCountryMono = repository.findById(dto.getId())
-                    .flatMap(egpCountry -> countryBaseMono.flatMap(countryBase -> {
-                        egpCountry.setCountryId(dto.getCountryId());
-                        egpCountry.setDefault(dto.isDefault());
-                        return repository.save(egpCountry);
-                    }))
+                    .flatMap(egpCountry ->
+                    {
+                        if (egpCountry.getId() != dto.getCountryId()) {
+                            return repository.findByCountryId(dto.getCountryId())
+                                    .switchIfEmpty(countryBaseMono.flatMap(countryBase -> {
+                                        egpCountry.setCountryId(dto.getCountryId());
+                                        egpCountry.setDefault(dto.isDefault());
+                                        return repository.save(egpCountry);
+                                    }));
+                        } else {
+                            return countryBaseMono.flatMap(countryBase -> {
+                                egpCountry.setCountryId(dto.getCountryId());
+                                egpCountry.setDefault(dto.isDefault());
+                                return repository.save(egpCountry);
+                            });
+                        }
+                    })
                     .switchIfEmpty(Mono.empty());
         }
 
