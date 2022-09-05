@@ -100,7 +100,7 @@ public class KeywordBaseService {
 
         return egpCountryService.getDefaultCountryId()
                 .flatMap(defaultCountryId -> repository.findByCountryId(defaultCountryId)
-                        .map(KeywordBase::getWiseName));
+                        .map(KeywordBase::getWiseName).switchIfEmpty(Mono.just("Not Found")));
 
     }
 }

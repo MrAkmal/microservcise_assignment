@@ -26,9 +26,7 @@ public class AspectLayout {
 
         String wiseName = service.getWiseName();
 
-        Arrays.stream(args)
-                .filter(arg -> arg instanceof Model)
-                .forEach(arg -> ((Model) arg).addAttribute("wiseName", wiseName));
+        Arrays.stream(args).filter(arg -> arg instanceof Model).forEach(arg -> ((Model) arg).addAttribute("wiseName", wiseName));
 
     }
 
