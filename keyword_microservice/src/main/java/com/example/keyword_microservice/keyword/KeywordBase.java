@@ -12,6 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Getter
 @Table("keyword_base")
 @Builder
+@ToString
 public class    KeywordBase {
 
     @Id

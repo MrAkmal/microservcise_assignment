@@ -92,7 +92,7 @@ public class EgpCountryService {
                             repository.findById(dto.getId()).flatMap(
                                     egpCountry ->
                                     {
-                                        if (egpCountry.getId() != dto.getCountryId()) {
+                                        if (egpCountry.getCountryId() != dto.getCountryId()) {
                                             return repository.findByCountryId(dto.getCountryId())
                                                     .switchIfEmpty(countryBaseMono.flatMap(countryBase -> {
                                                         egpCountry.setCountryId(dto.getCountryId());
@@ -112,7 +112,7 @@ public class EgpCountryService {
             egpCountryMono = repository.findById(dto.getId())
                     .flatMap(egpCountry ->
                     {
-                        if (egpCountry.getId() != dto.getCountryId()) {
+                        if (egpCountry.getCountryId() != dto.getCountryId()) {
                             return repository.findByCountryId(dto.getCountryId())
                                     .switchIfEmpty(countryBaseMono.flatMap(countryBase -> {
                                         egpCountry.setCountryId(dto.getCountryId());
@@ -151,6 +151,13 @@ public class EgpCountryService {
         return repository.findByDefault(true)
                 .map(EgpCountry::getCountryId)
                 .switchIfEmpty(Mono.empty());
+    }
+
+    public Flux<Integer> getDefaultCountry() {
+
+        return repository.findByDefaultCountry(true)
+                .map(EgpCountry::getCountryId)
+                .switchIfEmpty(Flux.empty());
     }
 }
 

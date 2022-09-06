@@ -141,6 +141,8 @@ public class KeywordBaseService {
                 .retrieve()
                 .bodyToFlux(KeywordWiseDTO.class).collectList();
 
-        return listMono.block();
+        List<KeywordWiseDTO> block = listMono.block();
+        System.out.println("block = " + block);
+        return block;
     }
 }

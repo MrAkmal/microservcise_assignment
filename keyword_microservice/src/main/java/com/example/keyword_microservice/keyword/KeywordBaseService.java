@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class KeywordBaseService {
@@ -100,23 +100,10 @@ public class KeywordBaseService {
 
     public Flux<KeywordBase> getWiseName() {
 
-        Mono<Integer> defaultCountryId = egpCountryService.getDefaultCountryId();
-
-        Mono<List<KeywordBase>> listMono = defaultCountryId.flatMap(integer -> {
-            Flux<KeywordBase> allByCountryId = repository.findAllByCountryId(integer);
-            return allByCountryId.collectList();
-        });
-
-        return listMono.flatMapMany(Flux::fromIterable);
-
-//         return keywordBaseFlux.map(keywordBase -> {
-//            return new KeywordWiseDTO(keywordBase.getId(), keywordBase.getGenericName(), keywordBase.getWiseName());
-//        });
-
-
-//        repository.findAllByCountryId(defaultCountryId)
-//                .map(keywordBase -> new KeywordWiseDTO(keywordBase.getId(), keywordBase.getGenericName(), keywordBase.getWiseName()));
-
-
+        Flux<Integer> defaultCountryId = egpCountryService.getDefaultCountry();
+        System.out.println("Start");
+        Flux<KeywordBase> keywordBaseFlux = defaultCountryId.flatMap(repository::findAllByCountryId);
+        keywordBaseFlux.subscribe(s->System.out.println(s));
+        return keywordBaseFlux;
     }
 }

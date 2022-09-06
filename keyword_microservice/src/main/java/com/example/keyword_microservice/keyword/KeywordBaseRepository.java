@@ -11,9 +11,8 @@ import java.util.List;
 @Repository
 public interface KeywordBaseRepository extends ReactiveCrudRepository<KeywordBase, Integer> {
 
+    @Query("select * from keyword_base where country_id= :countryId")
     Flux<KeywordBase> findAllByCountryId(Integer countryId);
-
-
 
 
     @Query("select * from keyword_base where generic_name= :#{#dto.genericName} and country_id= :#{#dto.countryId} and wise_name= :#{#dto.wiseName}")
