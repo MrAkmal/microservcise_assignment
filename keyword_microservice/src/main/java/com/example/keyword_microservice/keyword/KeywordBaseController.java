@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/key_word_base/keyword_base_server")
@@ -53,7 +54,7 @@ public class KeywordBaseController {
 
 
     @GetMapping("/wise_name")
-    public Mono<String> getWiseName(){
+    public Flux<KeywordBase> getWiseName(){
         return service.getWiseName();
     }
 

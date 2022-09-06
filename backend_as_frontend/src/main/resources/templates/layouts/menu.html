@@ -8,38 +8,43 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="/">Home</a>
+
+
+            <li th:each="wisename:${wiseNames}" th:text="${wisename.wiseName}" th:href="@{'/'+${wisename.genericName}}">
             </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/country-base">Country Base</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/egp-country">EgpCountry</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/financial-year">Financial Year</a>
-            </li>
-            <li class="nav-item active">
-                <!--  get from database                                 -->
-                <!--- country id and generic name  -  Country Wise Name -->
-                <a class="nav-link"   href="/procurement-nature">ProcurementNature</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" th:text="${wiseName}" href="/procurement-method"></a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/payment-type">Payment Type</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/payment-config">Payment Config</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/keyword-base">Keyword Base</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/logout">Logout</a>
-            </li>
+
+
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" href="/">Home</a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" href="/country-base">Country Base</a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" href="/egp-country">EgpCountry</a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" href="/financial-year">Financial Year</a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--&lt;!&ndash;                todo &ndash;&gt;-->
+            <!--                <a class="nav-link"  th:text="${genericName}" href="/procurement-nature"></a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" th:text="${wiseName}" href="/procurement-method"></a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" href="/payment-type">Payment Type</a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" href="/payment-config">Payment Config</a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" href="/keyword-base">Keyword Base</a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-item active">-->
+            <!--                <a class="nav-link" href="/logout">Logout</a>-->
+            <!--            </li>-->
         </ul>
     </div>
 

@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 public class KeywordBaseService {
 
@@ -96,11 +98,25 @@ public class KeywordBaseService {
                 .switchIfEmpty(Mono.empty());
     }
 
-    public Mono<String> getWiseName() {
+    public Flux<KeywordBase> getWiseName() {
 
-        return egpCountryService.getDefaultCountryId()
-                .flatMap(defaultCountryId -> repository.findByCountryId(defaultCountryId)
-                        .map(KeywordBase::getWiseName).switchIfEmpty(Mono.just("Not Found")));
+        Mono<Integer> defaultCountryId = egpCountryService.getDefaultCountryId();
+
+        Mono<List<KeywordBase>> listMono = defaultCountryId.flatMap(integer -> {
+            Flux<KeywordBase> allByCountryId = repository.findAllByCountryId(integer);
+            return allByCountryId.collectList();
+        });
+
+        return listMono.flatMapMany(Flux::fromIterable);
+
+//         return keywordBaseFlux.map(keywordBase -> {
+//            return new KeywordWiseDTO(keywordBase.getId(), keywordBase.getGenericName(), keywordBase.getWiseName());
+//        });
+
+
+//        repository.findAllByCountryId(defaultCountryId)
+//                .map(keywordBase -> new KeywordWiseDTO(keywordBase.getId(), keywordBase.getGenericName(), keywordBase.getWiseName()));
+
 
     }
 }

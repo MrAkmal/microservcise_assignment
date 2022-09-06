@@ -2,12 +2,14 @@ package com.example.backend_as_frontend.service;
 
 import com.example.backend_as_frontend.dto.KeywordBaseCreateDTO;
 import com.example.backend_as_frontend.dto.KeywordBaseUpdateDTO;
+import com.example.backend_as_frontend.dto.KeywordWiseDTO;
 import com.example.backend_as_frontend.entity.KeywordBase;
 import com.example.backend_as_frontend.entity.KeywordBaseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -130,15 +132,15 @@ public class KeywordBaseService {
 
     }
 
-    public String getWiseName() {
+    public List<KeywordWiseDTO> getWiseName() {
 
-        Mono<String> wiseName = webClient.get()
+        Mono<List<KeywordWiseDTO>> listMono = webClient.get()
                 .uri(baseURI + "/wise_name")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(AUTHORIZATION, getToken())
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToFlux(KeywordWiseDTO.class).collectList();
 
-        return wiseName.block();
+        return listMono.block();
     }
 }
