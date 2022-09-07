@@ -170,4 +170,8 @@ public class ProcurementMethodService {
                 .switchIfEmpty(Mono.empty());
     }
 
+    public Mono<ProcurementMethod> getProcurementMethod(Integer id){
+        return repository.findById(id).switchIfEmpty(Mono.empty());
+    }
+
 }

@@ -84,4 +84,9 @@ public class ProcurementMethodController {
         return service.getById(id);
     }
 
+    @GetMapping("/procurement_method/{id}")
+    public Mono<ProcurementMethod> getProcurementMethod(@PathVariable Integer id) {
+        return service.getProcurementMethod(id);
+    }
+
 }
