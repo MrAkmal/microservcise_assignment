@@ -1,6 +1,7 @@
 package com.example.payment_microservice.paymenttype;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,7 +21,7 @@ public class PaymentTypeService {
 
 
     public Flux<PaymentType> getAll() {
-        return repository.findAll().switchIfEmpty(Flux.empty());
+        return repository.findAll(Sort.by(Sort.Direction.ASC,"id")).switchIfEmpty(Flux.empty());
     }
 
     public Mono<PaymentType> get(Integer id) {

@@ -211,4 +211,8 @@ public class PaymentConfigurationService {
         mono.subscribe(System.out::println);
         return repository.deleteById(id);
     }
+
+    public Mono<PaymentConfiguration> findById(Integer id) {
+        return repository.findById(id).switchIfEmpty(Mono.empty());
+    }
 }

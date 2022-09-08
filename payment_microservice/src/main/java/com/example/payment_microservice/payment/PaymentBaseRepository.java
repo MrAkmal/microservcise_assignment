@@ -23,7 +23,7 @@ public interface PaymentBaseRepository extends ReactiveCrudRepository<PaymentBas
             "             pt.type                     AS type\n" +
             "      from payment_base pb\n" +
             "               inner join payment_type pt on pb.payment_type_id = pt.id\n" +
-            "      where pb.payment_configuration_id = :paymentConfigurationId) cte;")
+            "      where pb.payment_configuration_id = :paymentConfigurationId order by pb.payment_type_id) cte;")
     Flux<String> findPaymentBasesByPaymentConfigurationId(Integer paymentConfigurationId);
 
 
