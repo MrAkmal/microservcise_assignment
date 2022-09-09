@@ -105,4 +105,14 @@ public class PaymentBaseService {
 
         return all;
     }
+
+
+
+    public Mono<Void> deleteByPaymentTypeId(int paymentTypeId){
+        return repository.deleteByPaymentTypeId(paymentTypeId);
+    }
+
+
+
+
 }

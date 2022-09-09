@@ -86,7 +86,6 @@ public class KeywordBaseService {
     @Transactional
     public Flux<KeywordBaseDTO> getAll() {
 
-
         return repository.findAll()
                 .flatMap(keywordBase -> countryBaseService.get(keywordBase.getCountryId())
                         .map(countryBase -> mapper.toDTO(keywordBase, countryBase.getName())))

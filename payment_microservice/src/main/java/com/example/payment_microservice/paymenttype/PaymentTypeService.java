@@ -1,5 +1,6 @@
 package com.example.payment_microservice.paymenttype;
 
+import com.example.payment_microservice.payment.PaymentBaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,18 @@ public class PaymentTypeService {
 
     private final PaymentTypeRepository repository;
 
+
+    private final PaymentBaseRepository paymentBaseRepository;
+
     @Autowired
-    public PaymentTypeService(PaymentTypeRepository repository) {
+    public PaymentTypeService(PaymentTypeRepository repository, PaymentBaseRepository paymentBaseRepository) {
         this.repository = repository;
+        this.paymentBaseRepository = paymentBaseRepository;
     }
 
 
     public Flux<PaymentType> getAll() {
-        return repository.findAll(Sort.by(Sort.Direction.ASC,"id")).switchIfEmpty(Flux.empty());
+        return repository.findAll(Sort.by(Sort.Direction.ASC, "id")).switchIfEmpty(Flux.empty());
     }
 
     public Mono<PaymentType> get(Integer id) {
@@ -30,7 +35,12 @@ public class PaymentTypeService {
 
     public Mono<PaymentType> save(PaymentTypeCreateDTO dto) {
 
-        return repository.save(new PaymentType(dto.getType())).onErrorReturn(new PaymentType());
+
+        return repository.save(new PaymentType(dto.getType())).doOnNext(paymentType -> {
+            Mono<Void> voidMono = paymentBaseRepository.saveForPaymentType(paymentType.getId());
+            voidMono.subscribe(System.out::println);
+        }).onErrorReturn(new PaymentType());
+
     }
 
     public Flux<PaymentType> saveAll(List<PaymentTypeCreateDTO> types) {
@@ -50,6 +60,10 @@ public class PaymentTypeService {
     }
 
     public Mono<Void> delete(Integer id) {
+
+        Mono<Void> voidMono = paymentBaseRepository.deleteByPaymentTypeId(id);
+        voidMono.subscribe(System.out::println);
+
         return repository.deleteById(id);
     }
 }

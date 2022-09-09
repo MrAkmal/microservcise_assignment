@@ -12,6 +12,17 @@ import reactor.core.publisher.Mono;
 public interface PaymentBaseRepository extends ReactiveCrudRepository<PaymentBase, Integer> {
 
 
+
+    @Transactional
+    @Modifying
+    Mono<Void> deleteByPaymentTypeId(int paymentTypeId);
+
+
+    @Transactional
+    @Modifying
+    @Query(" call insertall(:paymentTypeId);")
+    Mono<Void> saveForPaymentType(int paymentTypeId);
+
     Mono<PaymentBase> findByPaymentConfigurationId(int paymentConfigurationId);
 
 

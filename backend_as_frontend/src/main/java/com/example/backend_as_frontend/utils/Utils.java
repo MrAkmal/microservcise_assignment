@@ -14,11 +14,11 @@ import java.util.Objects;
 public class Utils {
 
 
-
     @Bean
     public WebClient getWebClient() {
         return WebClient.builder().build();
     }
+
 
     public static String getToken(){
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
