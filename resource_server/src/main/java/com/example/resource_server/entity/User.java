@@ -36,15 +36,16 @@ public class User implements UserDetails {
 
     private String phoneNumber;
 
-    private String authority;
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
+            fetch = FetchType.EAGER)
+    private UserRole authority;
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(authority));
-
+        authorities.add(new SimpleGrantedAuthority(authority.getRoleName()));
         return authorities.stream().toList();
 
     }

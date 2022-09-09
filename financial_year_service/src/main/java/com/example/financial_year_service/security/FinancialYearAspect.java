@@ -31,6 +31,7 @@ public class FinancialYearAspect {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         String token = authorizationHeader.substring(7);
 
+
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<String> entity = new HttpEntity<>(token, headers);

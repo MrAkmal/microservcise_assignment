@@ -41,6 +41,11 @@ public class CustomRouteLocatorClass {
                         .uri("lb://keyword-base-server"))
 
 
+                .route("menu-server", r -> r.path("/v1/menu/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://menu-server"))
+
+
                 .route("resource-server", r -> r.path("/**")
                         .uri("lb://resource-server"))
                 .build();

@@ -105,4 +105,10 @@ public class KeywordBaseService {
         keywordBaseFlux.subscribe(s->System.out.println(s));
         return keywordBaseFlux;
     }
+
+    public Mono<KeywordBaseDTO> getKeywordBaseByDefaultCountry(Integer keywordBaseId, Integer defaultCountryId) {
+        return repository.findByCountryIdAndId(defaultCountryId,keywordBaseId)
+                .map(mapper::toDTOMenu)
+                .switchIfEmpty(Mono.empty());
+    }
 }

@@ -28,6 +28,7 @@
         <module>backend_as_frontend</module>
         <module>financial_year_service</module>
         <module>api_gateway</module>
+        <module>menu_service</module>
     </modules>
 
     <build>

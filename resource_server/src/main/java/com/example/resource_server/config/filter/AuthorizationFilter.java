@@ -30,6 +30,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String authorizationHeader = request.getHeader(AUTHORIZATION);
+        System.out.println("authorizationHeader = " + authorizationHeader);
 
         if (request.getServletPath().equals("/login") || request.getServletPath().contains("/swagger-ui") || request.getServletPath().equals("/refresh-token") ||
                 request.getServletPath().equals("/send-code") || request.getServletPath().equals("/reset-password")

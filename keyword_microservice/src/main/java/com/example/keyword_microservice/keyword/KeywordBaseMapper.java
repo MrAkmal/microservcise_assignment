@@ -36,4 +36,13 @@ public class KeywordBaseMapper {
                 .wiseName(dto.getWiseName())
                 .build();
     }
+
+    public KeywordBaseDTO toDTOMenu(KeywordBase keywordBase){
+
+        return KeywordBaseDTO.builder()
+                .id(keywordBase.getId())
+                .genericName(keywordBase.getGenericName())
+                .wiseName(keywordBase.getWiseName())
+                .build();
+    }
 }

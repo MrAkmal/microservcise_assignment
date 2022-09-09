@@ -18,4 +18,7 @@ public interface KeywordBaseRepository extends ReactiveCrudRepository<KeywordBas
     @Query("select * from keyword_base where generic_name= :#{#dto.genericName} and country_id= :#{#dto.countryId} and wise_name= :#{#dto.wiseName}")
     Mono<KeywordBase> checkKeywordNotExist(KeywordBaseCreateDTO dto);
 
+
+    Mono<KeywordBase> findByCountryIdAndId(Integer countryId,Integer id);
+
 }

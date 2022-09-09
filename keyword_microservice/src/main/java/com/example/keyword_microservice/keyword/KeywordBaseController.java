@@ -58,4 +58,9 @@ public class KeywordBaseController {
         return service.getWiseName();
     }
 
+    @GetMapping("/country/{keywordBaseId}/{defaultCountryId}")
+    public Mono<KeywordBaseDTO> getKeywordBaseByDefaultCountry(@PathVariable Integer keywordBaseId,@PathVariable Integer defaultCountryId){
+        return service.getKeywordBaseByDefaultCountry(keywordBaseId,defaultCountryId);
+    }
+
 }

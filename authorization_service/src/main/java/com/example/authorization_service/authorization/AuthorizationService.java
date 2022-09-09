@@ -25,6 +25,8 @@ public class AuthorizationService {
 
     public AuthorizationDTO generateToken(RequestDTO dto) {
 
+        System.out.println("dto.getAuthorities() = " + dto.getAuthorities());
+
         String accessToken = JWT.create()
                 .withSubject(dto.getUsername())
                 .withExpiresAt(JWTUtils.getExpiresAt())

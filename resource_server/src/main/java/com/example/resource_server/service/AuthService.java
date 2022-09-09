@@ -90,7 +90,7 @@ public class AuthService implements UserDetailsService {
             String accessToken = JWT.create()
                     .withSubject(user.getUsername())
                     .withExpiresAt(JWTUtils.getExpiresAt())
-                    .withClaim("roles", user.getAuthority())
+                    .withClaim("roles", user.getAuthority().getRoleName())
                     .withIssuer(request.getRequestURI())
                     .sign(JWTUtils.getAlgorithm());
 
