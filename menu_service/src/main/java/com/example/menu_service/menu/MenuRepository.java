@@ -12,7 +12,7 @@ public interface MenuRepository extends R2dbcRepository<Menu,Integer> {
     @Modifying
     Mono<Void> deleteAllByParentId(Integer parentId);
 
-    Mono<Menu> findByParentIdAndKeywordBaseIdAndRoleId(Integer parentId, Integer keywordBaseId, Integer roleId);
+    Mono<Menu> findByParentIdAndKeywordIdAndRoleId(Integer parentId, Integer keywordId, Integer roleId);
 
     Mono<Menu> findByParentId(Integer parentId);
 

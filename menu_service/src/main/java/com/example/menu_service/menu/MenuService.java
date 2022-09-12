@@ -44,7 +44,6 @@ public class MenuService {
 
     public Mono<ResponseDTO<MenuDTO, String>> get(Integer menuId, String token) {
 
-
         String roleName = getRole(token);
         System.out.println("roleName = " + roleName);
 
@@ -52,6 +51,7 @@ public class MenuService {
 
         return menuMono.flatMap(menu -> {
             HttpHeaders headers = new HttpHeaders();
+
             headers.setBearerAuth(token);
             RoleDTO role = null;
             try {
@@ -62,16 +62,22 @@ public class MenuService {
                 throw new RuntimeException(e);
             }
 
+            System.out.println("role.getRoleName() = " + role.getRoleName());
+
             if (role == null) {
                 return Mono.just(new ResponseDTO<>(HttpStatus.NOT_FOUND.value(), new MenuDTO(), "Not Found"));
             }
 
+            System.out.println("keywordBase");
             Mono<KeywordBaseDTO> objectMono = WebClient.builder().build()
                     .get()
-                    .uri(keywordBaseUrl + "/" + menu.getKeywordBaseId())
+                    .uri(keywordBaseUrl + "/" + menu.getKeywordId())
                     .header(AUTHORIZATION, "Bearer " + token)
                     .retrieve()
                     .bodyToMono(KeywordBaseDTO.class);
+
+            objectMono.subscribe(System.out::println);
+
 
             return objectMono.map(keywordBaseDTO -> {
                 MenuDTO menuDTO = MenuDTO
@@ -82,6 +88,7 @@ public class MenuService {
                         .parentId(menu.getParentId())
                         .build();
                 return new ResponseDTO<MenuDTO, String>(HttpStatus.OK.value(), menuDTO, "");
+
             }).switchIfEmpty(Mono.just(new ResponseDTO<>(HttpStatus.NOT_FOUND.value(), null, "Not Found")));
 
 
@@ -111,7 +118,7 @@ public class MenuService {
 
                     Mono<KeywordBaseDTO> keywordBaseDTOMono = WebClient.builder().build()
                             .get()
-                            .uri(keywordBaseUrl + "/country/" + menu.getKeywordBaseId() + "/" + defaultCountryId)
+                            .uri(keywordBaseUrl + "/country/" + menu.getKeywordId() + "/" + defaultCountryId)
                             .header(AUTHORIZATION, "Bearer " + token)
                             .retrieve()
                             .bodyToMono(KeywordBaseDTO.class);
@@ -134,16 +141,19 @@ public class MenuService {
 
     public Mono<ResponseDTO<MenuDTO, String>> create(MenuCreateDTO createDTO, String token) {
 
-
         String roleName = getRole(token);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-        HttpEntity<String> entity = new HttpEntity<>(token, headers);
-        System.out.println("token = " + token);
 
-        RoleDTO role = restTemplate.exchange(resourceServerUrl + "/name/" + roleName,
-                HttpMethod.GET, entity, RoleDTO.class).getBody();
+        headers.setBearerAuth(token);
+        RoleDTO role = null;
+        try {
+            role = restTemplate.exchange(RequestEntity.get(
+                            new URI(resourceServerUrl + "/name/" + roleName)).headers(headers).build(),
+                    RoleDTO.class).getBody();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         if (role == null) {
             return Mono.just(new ResponseDTO<>(HttpStatus.NOT_FOUND.value(), null, "Not Found"));
         }
@@ -156,15 +166,15 @@ public class MenuService {
                 .bodyToMono(KeywordBaseDTO.class);
 
         if (createDTO.getParentId() == 0) {
-
+            RoleDTO finalRole = role;
             return keywordBaseDTOMono.flatMap(keywordBaseDTO -> {
                 Menu menu = Menu.builder()
                         .id(createDTO.getId())
-                        .keywordBaseId(keywordBaseDTO.getId())
-                        .roleId(role.getId())
+                        .keywordId(keywordBaseDTO.getId())
+                        .roleId(finalRole.getId())
                         .parentId(0)
                         .build();
-                return repository.findByParentIdAndKeywordBaseIdAndRoleId(createDTO.getParentId(),
+                return repository.findByParentIdAndKeywordIdAndRoleId(createDTO.getParentId(),
                                 createDTO.getKeywordId(), createDTO.getRoleId())
                         .flatMap(menu1 -> Mono.just(new ResponseDTO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), new MenuDTO(), "Already Exist")))
                         .switchIfEmpty(repository.save(menu).flatMap(menu1 -> {
@@ -174,17 +184,18 @@ public class MenuService {
             });
 
         } else {
+            RoleDTO finalRole1 = role;
             return repository.findByParentId(createDTO.getParentId())
                     .flatMap(menu -> {
                         return keywordBaseDTOMono.flatMap(keywordBaseDTO -> {
                             Menu menu2 = Menu.builder()
                                     .id(createDTO.getId())
                                     .parentId(createDTO.getParentId())
-                                    .keywordBaseId(keywordBaseDTO.getId())
-                                    .roleId(role.getId())
+                                    .keywordId(keywordBaseDTO.getId())
+                                    .roleId(finalRole1.getId())
                                     .parentId(0)
                                     .build();
-                            return repository.findByParentIdAndKeywordBaseIdAndRoleId(createDTO.getParentId(),
+                            return repository.findByParentIdAndKeywordIdAndRoleId(createDTO.getParentId(),
                                             createDTO.getKeywordId(), createDTO.getRoleId())
                                     .flatMap(menu1 -> Mono.just(new ResponseDTO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), new MenuDTO(), "Already Exist")))
                                     .switchIfEmpty(repository.save(menu2).flatMap(menu1 -> {

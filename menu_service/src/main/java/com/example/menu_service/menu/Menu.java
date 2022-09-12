@@ -24,8 +24,8 @@ public class Menu {
     private int parentId;
 
 
-    @Column("keyword_base_id")
-    private int keywordBaseId;
+    @Column("keyword_id")
+    private int keywordId;
 
 
     @Column("role_id")
