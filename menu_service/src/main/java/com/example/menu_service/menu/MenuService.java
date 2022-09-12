@@ -44,6 +44,7 @@ public class MenuService {
 
     public Mono<ResponseDTO<MenuDTO, String>> get(Integer menuId, String token) {
 
+
         String roleName = getRole(token);
         System.out.println("roleName = " + roleName);
 
@@ -55,7 +56,7 @@ public class MenuService {
             RoleDTO role = null;
             try {
                 role = restTemplate.exchange(RequestEntity.get(
-                                new URI(resourceServerUrl+"/name/"+roleName)).headers(headers).build(),
+                                new URI(resourceServerUrl + "/name/" + roleName)).headers(headers).build(),
                         RoleDTO.class).getBody();
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
@@ -102,7 +103,7 @@ public class MenuService {
         headers.setBearerAuth(token);
 
         RoleDTO role = restTemplate.exchange(RequestEntity.get(
-                        new URI(resourceServerUrl+"/name/"+roleName)).headers(headers).build(),
+                        new URI(resourceServerUrl + "/name/" + roleName)).headers(headers).build(),
                 RoleDTO.class).getBody();
 
         Flux<ResponseDTO<MenuDTO, String>> responseDTOFlux = repository.findAllByRoleIdAndParentId(role.getId(), parentId)
@@ -208,14 +209,14 @@ public class MenuService {
                 }).switchIfEmpty(Mono.just(new ResponseDTO<>(HttpStatus.NOT_FOUND.value(), null, "Not Found")));
     }
 
-    public Mono<ResponseDTO<MenuDTO, String>> update(MenuUpdateDTO updateDTO,String token) {
+    public Mono<ResponseDTO<MenuDTO, String>> update(MenuUpdateDTO updateDTO, String token) {
 
         return repository.findById(updateDTO.getId())
                 .flatMap(menu -> {
                     return create(new MenuCreateDTO(
-                            updateDTO.getId(), updateDTO.getParentId(),
-                            updateDTO.getKeywordId(), updateDTO.getRoleId())
-                            ,token);
+                                    updateDTO.getId(), updateDTO.getParentId(),
+                                    updateDTO.getKeywordId(), updateDTO.getRoleId())
+                            , token);
                 }).switchIfEmpty(
                         Mono.just(new ResponseDTO<>(HttpStatus.NOT_FOUND.value(), null, "Not Found")));
     }
@@ -225,7 +226,10 @@ public class MenuService {
 
         JWTVerifier verifier = JWT.require(JWTUtils.getAlgorithm()).build();
         DecodedJWT decodedJWT = verifier.verify(token);
-        return decodedJWT.getClaim("roles").asString();
+
+        List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
+
+        return roles.get(0);
 
     }
 
